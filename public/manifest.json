@@ -1,0 +1,17 @@
+{
+  "short_name": "AntigravityHabit",
+  "name": "Extended Habit Tracker",
+  "description": "A comprehensive bullet-journal style life tracker with habit logs, vitals, daily mood details, and charts.",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#020617",
+  "theme_color": "#0f172a",
+  "display": "standalone",
+  "orientation": "portrait"
+}
