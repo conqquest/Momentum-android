@@ -892,3 +892,845 @@ textarea:focus {
   fill: #1c1c24;
   rx: 3px;
 }
+
+/* ═══════════════════════════════════════════════════════
+   PROFILE VIEW - Premium Aesthetic Redesign
+   ═══════════════════════════════════════════════════════ */
+
+.profile-container {
+  padding-top: 8px !important;
+}
+
+/* ─── Profile Hero Card ─── */
+.profile-hero {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: 28px;
+  padding: 0;
+  margin-bottom: 14px;
+  overflow: hidden;
+  position: relative;
+}
+
+.profile-hero-bg {
+  height: 72px;
+  background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 50%, #e97a1e 100%);
+  position: relative;
+}
+
+.profile-hero-bg::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  background: linear-gradient(to top, var(--bg-card), transparent);
+}
+
+.profile-avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: -40px;
+  padding: 0 20px 8px;
+  position: relative;
+  z-index: 2;
+}
+
+.profile-avatar-ring {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover), #e97a1e);
+  box-shadow: 0 4px 20px rgba(251, 191, 36, 0.3);
+}
+
+.profile-hero-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--bg-card);
+  background: var(--bg-main);
+}
+
+.profile-hero-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-top: 10px;
+  letter-spacing: -0.3px;
+}
+
+.profile-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: var(--accent-light);
+  color: var(--accent-color);
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+/* ─── Profile Stats Row ─── */
+.profile-stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 16px 12px 18px;
+  margin-top: 4px;
+  border-top: 1px solid var(--border-color);
+}
+
+.profile-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+}
+
+.profile-stat-value {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
+.stat-icon.flame {
+  color: #ef4444;
+}
+
+.stat-icon.award {
+  color: var(--accent-color);
+}
+
+.profile-stat-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+  letter-spacing: 0.2px;
+}
+
+.profile-stat-divider {
+  width: 1px;
+  height: 28px;
+  background: var(--border-color);
+  flex-shrink: 0;
+}
+
+/* ─── Contribution Heatmap ─── */
+.heatmap-wrapper {
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+}
+
+.heatmap-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.heatmap-svg {
+  display: block;
+}
+
+.heatmap-month-label {
+  font-size: 9px;
+  fill: var(--text-muted);
+  font-family: var(--font-family);
+  font-weight: 600;
+}
+
+.heatmap-day-label {
+  font-size: 8.5px;
+  fill: var(--text-muted);
+  font-family: var(--font-family);
+  font-weight: 600;
+}
+
+.heatmap-cell {
+  transition: fill 0.15s ease;
+}
+
+/* Light Mode Heatmap Colors (GitHub-green scheme adapted to warm palette) */
+.heatmap-level-0 { fill: var(--border-color); }
+.heatmap-level-1 { fill: #c6e48b; }
+.heatmap-level-2 { fill: #7bc96f; }
+.heatmap-level-3 { fill: #239a3b; }
+.heatmap-level-4 { fill: #196127; }
+
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 6px;
+  padding-right: 2px;
+}
+
+.heatmap-legend span {
+  font-size: 9px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.heatmap-legend-cell {
+  width: 11px;
+  height: 11px;
+  border-radius: 2.5px;
+}
+
+/* ─── Collapsible Profile Sections ─── */
+.profile-section {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: 20px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.profile-section-danger {
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.profile-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  width: 100%;
+  color: inherit;
+  font-family: var(--font-family);
+}
+
+.profile-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-section-title span {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.profile-section-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--accent-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profile-section-body {
+  padding: 0 18px 18px;
+}
+
+/* ─── Profile Form Elements ─── */
+.profile-form-group {
+  margin-bottom: 14px;
+}
+
+.profile-form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  letter-spacing: 0.2px;
+}
+
+.profile-input {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--bg-main);
+  border: 1.5px solid var(--border-color);
+  border-radius: 14px;
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
+}
+
+.profile-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237c6866' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+/* ─── Profile Buttons ─── */
+.profile-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 14px;
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.profile-btn-primary {
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+  color: var(--btn-text);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.25);
+}
+
+.profile-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(251, 191, 36, 0.35);
+}
+
+.profile-btn-primary:active {
+  transform: translateY(0);
+}
+
+.profile-btn-outline {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1.5px solid var(--border-color);
+}
+
+.profile-btn-outline:hover {
+  background: var(--bg-main);
+}
+
+.profile-btn-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.profile-btn-danger:hover {
+  background: rgba(239, 68, 68, 0.18);
+}
+
+/* ─── Google Sign-In Button ─── */
+.google-signin-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 14px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-main);
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 14px;
+}
+
+.google-signin-btn:hover {
+  border-color: var(--accent-color);
+  box-shadow: 0 2px 12px rgba(251, 191, 36, 0.15);
+  transform: translateY(-1px);
+}
+
+.google-signin-btn:active {
+  transform: translateY(0);
+}
+
+.google-signin-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.google-icon {
+  flex-shrink: 0;
+}
+
+/* ─── Sync Status Row ─── */
+.profile-sync-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-sync-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.profile-sync-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.profile-sync-sub {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* ─── Habit List ─── */
+.profile-habits-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.profile-habit-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--bg-main);
+  border: 1.5px solid var(--border-color);
+  border-radius: 14px;
+}
+
+.profile-habit-name {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.profile-habit-cat {
+  display: block;
+  font-size: 10px;
+  color: var(--text-secondary);
+  margin-top: 1px;
+}
+
+.profile-habit-delete {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: none;
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.profile-habit-delete:hover {
+  background: rgba(239, 68, 68, 0.16);
+}
+
+.profile-add-habit-form {
+  border-top: 1.5px solid var(--border-color);
+  padding-top: 16px;
+}
+
+/* ─── Data & Config Actions ─── */
+.profile-data-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profile-config-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.profile-config-actions .profile-btn {
+  flex: 1;
+}
+
+/* ─── Danger Zone ─── */
+.profile-danger-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+/* ─── Profile Footer ─── */
+.profile-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 4px 8px;
+}
+
+.profile-footer span {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* ═══ Dark Mode Overrides for Profile ═══ */
+@media (prefers-color-scheme: dark) {
+  .profile-hero,
+  .profile-section {
+    background: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+  }
+
+  .profile-hero-bg {
+    background: linear-gradient(135deg, #b45309 0%, #92400e 50%, #78350f 100%);
+  }
+
+  .profile-hero-bg::after {
+    background: linear-gradient(to top, var(--bg-card), transparent);
+  }
+
+  .profile-avatar-ring {
+    background: linear-gradient(135deg, #f59e0b, #b45309, #78350f);
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.2);
+  }
+
+  .profile-hero-avatar {
+    border-color: var(--bg-card);
+  }
+
+  .profile-input,
+  .profile-select {
+    background: var(--bg-main) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+  }
+
+  .profile-input:focus {
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1) !important;
+  }
+
+  .google-signin-btn {
+    background: var(--bg-main) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+  }
+
+  .google-signin-btn:hover {
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 2px 12px rgba(245, 158, 11, 0.1) !important;
+  }
+
+  .profile-habit-item {
+    background: var(--bg-main) !important;
+    border-color: var(--border-color) !important;
+  }
+
+  .profile-btn-primary {
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-hover)) !important;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2) !important;
+  }
+
+  .profile-btn-outline {
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+  }
+
+  .profile-btn-outline:hover {
+    background: var(--bg-main) !important;
+  }
+
+  .profile-section-header {
+    color: var(--text-primary) !important;
+  }
+
+  /* Dark Mode Heatmap Colors */
+  .heatmap-level-0 { fill: var(--border-color); }
+  .heatmap-level-1 { fill: #0e4429; }
+  .heatmap-level-2 { fill: #006d32; }
+  .heatmap-level-3 { fill: #26a641; }
+  .heatmap-level-4 { fill: #39d353; }
+
+  .profile-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a39391' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 14px center !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   JOURNEY VIEW - Premium Analytics Redesign
+   ═══════════════════════════════════════════════════════ */
+
+/* ─── Journey Hero Banner ─── */
+.journey-hero {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: 24px;
+  padding: 18px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.journey-hero-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.journey-hero-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.journey-hero-value {
+  font-size: 36px;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin: 2px 0;
+  letter-spacing: -1.5px;
+  line-height: 1;
+}
+
+.journey-hero-sub {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.journey-hero-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.journey-mini-stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 8px 12px;
+}
+
+.journey-mini-stat > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.journey-mini-val {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.journey-mini-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* ─── Time Range Selector ─── */
+.time-range-selector {
+  display: flex;
+  gap: 6px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: 16px;
+  padding: 5px;
+  margin-bottom: 14px;
+}
+
+.time-range-btn {
+  flex: 1;
+  padding: 8px 0;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  font-family: var(--font-family);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.time-range-btn.active {
+  background: var(--accent-color);
+  color: var(--btn-text);
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+}
+
+.time-range-btn:not(.active):hover {
+  color: var(--text-primary);
+  background: var(--bg-main);
+}
+
+/* ─── Chart Cards ─── */
+.journey-chart-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: 22px;
+  padding: 18px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+
+.journey-chart-header {
+  margin-bottom: 12px;
+}
+
+.journey-chart-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.journey-chart-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.journey-chart-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.journey-chart-sub {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* ─── Donut Section ─── */
+.journey-donut-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.journey-donut-wrap {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.journey-donut-center {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.journey-donut-val {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.journey-donut-lbl {
+  font-size: 8px;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+.journey-donut-legend {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.journey-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.journey-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.journey-legend-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+.journey-legend-pct {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+/* ═══ Dark Mode Overrides for Journey ═══ */
+@media (prefers-color-scheme: dark) {
+  .journey-hero,
+  .journey-chart-card,
+  .time-range-selector {
+    background: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+  }
+
+  .journey-mini-stat {
+    background: var(--bg-main) !important;
+    border-color: var(--border-color) !important;
+  }
+
+  .time-range-btn.active {
+    background: var(--accent-color) !important;
+    color: var(--btn-text) !important;
+  }
+
+  .time-range-btn:not(.active):hover {
+    background: var(--bg-main) !important;
+  }
+}
+
+

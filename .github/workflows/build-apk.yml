@@ -3,7 +3,10 @@ name: Build Android APK (Cloud Compiler)
 on:
   push:
     branches: [ main, master ]
-  workflow_dispatch: # Allows manual trigger from the GitHub Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -28,6 +31,13 @@ jobs:
       # Step 4: Compile the React web application
       - name: Build Web App
         run: npm run build
+
+      # Step 4.5: Deploy static web PWA to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
 
       # Step 5: Set up Java Development Kit (JDK) 21 (Required by modern Capacitor Gradle configurations)
       - name: Set up JDK 21
