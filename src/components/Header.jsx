@@ -2,10 +2,11 @@ import React, { useContext } from 'react';
 import { AppContext } from '../context/AppContext';
 
 const Header = () => {
-  const { displayName, user, setActiveTab } = useContext(AppContext);
+  const { displayName, user, gender, setActiveTab } = useContext(AppContext);
 
-  // Use a cute adventurer avatar to match illustration style
-  const avatarUrl = user?.photoURL || `https://api.dicebear.com/7.x/adventurer/svg?seed=${displayName}`;
+  // Determine a cute gender-specific adventurer seed to match illustration style
+  const avatarSeed = gender === 'Female' ? 'Aria' : (gender === 'Non-Binary' ? 'Riley' : 'Felix');
+  const avatarUrl = user?.photoURL || `https://api.dicebear.com/7.x/adventurer/svg?seed=${displayName || 'User'}-${avatarSeed}`;
 
   return (
     <header className="app-header">
