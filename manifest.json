@@ -1,0 +1,27 @@
+{
+  "short_name": "Momentum",
+  "name": "Momentum Mindfulness & Habit Tracker",
+  "description": "An organic bullet-journal style life tracker with daily habit logs, mood reflections, and e-books.",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "type": "image/png",
+      "sizes": "64x64"
+    },
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#fdf8f5",
+  "theme_color": "#3d2e2c",
+  "display": "standalone",
+  "orientation": "portrait"
+}
