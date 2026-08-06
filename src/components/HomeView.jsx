@@ -12,7 +12,7 @@ const HomeView = () => {
     setShowJournalModal 
   } = useContext(AppContext);
 
-  // Generate 7 days centered around selected date (or current date)
+  // Generate 7 days centered around selected date
   const getWeeklyDates = () => {
     const dates = [];
     const baseDate = new Date(selectedDate);
@@ -74,7 +74,7 @@ const HomeView = () => {
       </div>
 
       {/* Greeting Cards */}
-      <h2 style={{ fontSize: '15px', fontWeight: '800', marginBottom: '12px' }}>My Journal</h2>
+      <h2 style={{ fontSize: '15px', fontWeight: '800', marginBottom: '12px', color: 'var(--text-primary)' }}>My Journal</h2>
       
       {/* Illustrated Morning Card */}
       <div 
@@ -83,11 +83,11 @@ const HomeView = () => {
         style={{ cursor: 'pointer', minHeight: '160px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
       >
         <div>
-          <span style={{ fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', opacity: 0.8 }}>Morning check-in</span>
-          <h3 style={{ fontSize: '20px', fontWeight: '800', color: '#3d2e2c', marginTop: '4px', textTransform: 'none', letterSpacing: 'normal' }}>
+          <span style={{ fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', opacity: 0.8, color: 'var(--text-secondary)' }}>Morning check-in</span>
+          <h3 style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', marginTop: '4px', textTransform: 'none', letterSpacing: 'normal' }}>
             Let's start your day
           </h3>
-          <p style={{ color: '#5c4845', fontSize: '12px', marginTop: '2px', fontWeight: '500' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '12px', marginTop: '2px', fontWeight: '500' }}>
             {currentDayLog.morningReflect || "Begin with a mindful morning reflections."}
           </p>
         </div>
@@ -97,7 +97,7 @@ const HomeView = () => {
           <div style={{ position: 'absolute', bottom: '-10px', right: '-10px', width: '90px', height: '90px', borderRadius: '50%', background: '#84cc16', opacity: 0.7 }}></div>
           <div style={{ position: 'absolute', bottom: '-20px', right: '30px', width: '100px', height: '100px', borderRadius: '50%', background: '#4d7c0f' }}></div>
           
-          <div style={{ position: 'absolute', bottom: '40px', right: '35px', width: '54px', height: '54px', borderRadius: '50%', background: '#f97316', border: '3px solid #3d2e2c', display: 'flex', alignItems: 'center', justify: 'center' }}>
+          <div style={{ position: 'absolute', bottom: '40px', right: '35px', width: '54px', height: '54px', borderRadius: '50%', background: '#f97316', border: '3px solid #3d2e2c', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#3d2e2c', position: 'absolute', left: '14px', top: '18px' }}></div>
             <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#3d2e2c', position: 'absolute', right: '14px', top: '18px' }}></div>
             <div style={{ width: '10px', height: '5px', borderBottom: '2.5px solid #3d2e2c', borderRadius: '0 0 10px 10px', position: 'absolute', top: '24px' }}></div>
@@ -107,7 +107,7 @@ const HomeView = () => {
 
       {/* Habits Checklist (Square Checkbox Core Feature) */}
       <div className="flex-row" style={{ marginTop: '8px', marginBottom: '12px' }}>
-        <h2 style={{ fontSize: '15px', fontWeight: '800' }}>Habit Tracker</h2>
+        <h2 style={{ fontSize: '15px', fontWeight: '800', color: 'var(--text-primary)' }}>Habit Tracker</h2>
         <span 
           style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: '700', cursor: 'pointer' }}
           onClick={() => setShowJournalModal(true)}
@@ -147,7 +147,7 @@ const HomeView = () => {
 
       {/* Quick Journal Scroll Row */}
       <div className="flex-row" style={{ marginTop: '8px', marginBottom: '8px' }}>
-        <h2 style={{ fontSize: '15px', fontWeight: '800' }}>Quick Journal</h2>
+        <h2 style={{ fontSize: '15px', fontWeight: '800', color: 'var(--text-primary)' }}>Quick Journal</h2>
         <span 
           style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: '700', cursor: 'pointer' }}
           onClick={() => setShowJournalModal(true)}
@@ -160,28 +160,28 @@ const HomeView = () => {
         {/* Grateful Prompts */}
         <div className="prompt-card card-pink" onClick={() => handleQuickPrompt("I am grateful for...")}>
           <div>
-            <h4 style={{ fontSize: '14px', fontWeight: '800', color: '#3d2e2c' }}>Pause & reflect 🌱</h4>
-            <p style={{ fontSize: '11px', color: '#5c4845', marginTop: '6px', fontWeight: '600', lineHeight: '1.3' }}>
+            <h4 style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-primary)' }}>Pause & reflect 🌱</h4>
+            <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px', fontWeight: '600', lineHeight: '1.3' }}>
               What are you grateful for today? Write down three small things.
             </p>
           </div>
           <div style={{ display: 'flex', gap: '4px' }}>
-            <span style={{ fontSize: '9px', fontWeight: '700', background: '#ffffff', color: '#be123c', padding: '2px 8px', borderRadius: '10px' }}>Today</span>
-            <span style={{ fontSize: '9px', fontWeight: '700', background: '#ffffff', color: '#be123c', padding: '2px 8px', borderRadius: '10px' }}>Personal</span>
+            <span style={{ fontSize: '9px', fontWeight: '700', background: 'var(--bg-main)', color: 'var(--text-primary)', padding: '2px 8px', borderRadius: '10px' }}>Today</span>
+            <span style={{ fontSize: '9px', fontWeight: '700', background: 'var(--bg-main)', color: 'var(--text-primary)', padding: '2px 8px', borderRadius: '10px' }}>Personal</span>
           </div>
         </div>
 
         {/* Intention Prompts */}
         <div className="prompt-card card-purple" onClick={() => handleQuickPrompt("My intentions are...")}>
           <div>
-            <h4 style={{ fontSize: '14px', fontWeight: '800', color: '#3d2e2c' }}>Set Intentions ☀️</h4>
-            <p style={{ fontSize: '11px', color: '#55456c', marginTop: '6px', fontWeight: '600', lineHeight: '1.3' }}>
+            <h4 style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-primary)' }}>Set Intentions ☀️</h4>
+            <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px', fontWeight: '600', lineHeight: '1.3' }}>
               How do you want to feel today? Set your mindset goal.
             </p>
           </div>
           <div style={{ display: 'flex', gap: '4px' }}>
-            <span style={{ fontSize: '9px', fontWeight: '700', background: '#ffffff', color: '#6d28d9', padding: '2px 8px', borderRadius: '10px' }}>Today</span>
-            <span style={{ fontSize: '9px', fontWeight: '700', background: '#ffffff', color: '#6d28d9', padding: '2px 8px', borderRadius: '10px' }}>Family</span>
+            <span style={{ fontSize: '9px', fontWeight: '700', background: 'var(--bg-main)', color: 'var(--text-primary)', padding: '2px 8px', borderRadius: '10px' }}>Today</span>
+            <span style={{ fontSize: '9px', fontWeight: '700', background: 'var(--bg-main)', color: 'var(--text-primary)', padding: '2px 8px', borderRadius: '10px' }}>Family</span>
           </div>
         </div>
       </div>

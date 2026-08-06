@@ -76,77 +76,6 @@ The secret of the song was simple: the bird only sang when it could reflect the 
   }
 ];
 
-// Prepopulate 30 days of daily reflections and habit completions for visual graphs
-const generateMockLogs = () => {
-  const mock = {};
-  const today = new Date();
-  
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
-    const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    
-    // Emotion breakdown (must add to 100)
-    const isHappyDay = Math.random() > 0.4;
-    let happy = 40;
-    let sad = 20;
-    let calm = 20;
-    let anxious = 20;
-
-    if (isHappyDay) {
-      happy = Math.floor(45 + Math.random() * 20);
-      calm = Math.floor(20 + Math.random() * 15);
-      sad = Math.floor(5 + Math.random() * 10);
-      anxious = 100 - (happy + calm + sad);
-    } else {
-      sad = Math.floor(35 + Math.random() * 15);
-      anxious = Math.floor(25 + Math.random() * 15);
-      calm = Math.floor(15 + Math.random() * 10);
-      happy = 100 - (sad + anxious + calm);
-    }
-
-    const weatherOptions = ['Sunny', 'Cloudy', 'Rainy', 'Windy'];
-    const weather = weatherOptions[Math.floor(Math.random() * weatherOptions.length)];
-    
-    const morningReflections = [
-      "Woke up feeling refreshed. Grateful for the warm sun.",
-      "A bit sleepy today, but eager to learn something new.",
-      "Woke up from a strange dream. Intending to stay calm.",
-      "Grateful for morning coffee and peaceful silent hours."
-    ];
-    
-    const eveningReflections = [
-      "Had a lovely dinner. Enjoyed social chat with mates.",
-      "Productive workday. Relaxed with reading in the evening.",
-      "Felt active. Completed a 5km run before sunset.",
-      "Cozy movie night. Listened to peaceful background music."
-    ];
-
-    const momentText = morningReflections[Math.floor(Math.random() * morningReflections.length)] + 
-      " " + eveningReflections[Math.floor(Math.random() * eveningReflections.length)];
-
-    // Prepopulate square checkboxes habit completion metrics
-    const habitsChecked = {
-      workout: Math.random() > 0.4,
-      water: Math.random() > 0.25,
-      read: Math.random() > 0.35,
-      meditation: Math.random() > 0.45,
-      sleep: Math.random() > 0.3
-    };
-
-    mock[dateStr] = {
-      weather,
-      moodDetail: isHappyDay ? 'Happy' : 'Calm',
-      momentText,
-      morningReflect: morningReflections[Math.floor(Math.random() * morningReflections.length)],
-      eveningReflect: eveningReflections[Math.floor(Math.random() * eveningReflections.length)],
-      emotions: { happy, sad, calm, anxious },
-      habitsChecked
-    };
-  }
-  return mock;
-};
-
 export const AppProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -173,12 +102,7 @@ export const AppProvider = ({ children }) => {
   // Daily log state: { [date]: { weather, moodDetail, momentText, morningReflect, eveningReflect, emotions, habitsChecked } }
   const [logs, setLogs] = useState(() => {
     const local = localStorage.getItem('mindful_logs');
-    if (local) {
-      return JSON.parse(local);
-    }
-    const initialMock = generateMockLogs();
-    localStorage.setItem('mindful_logs', JSON.stringify(initialMock));
-    return initialMock;
+    return local ? JSON.parse(local) : {};
   });
 
   // Subscribe to auth updates

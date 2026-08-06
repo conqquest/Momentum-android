@@ -9,26 +9,22 @@ import SettingsView from './components/SettingsView';
 import JournalModal from './components/JournalModal';
 import { RefreshCw, Heart } from 'lucide-react';
 
-const SplashOverlay = () => {
+const SplashOverlay = ({ exit }) => {
   return (
-    <div className="splash-container">
-      <img 
-        src="/favicon.png" 
-        alt="Logo" 
-        className="splash-logo"
-        onError={(e) => {
-          // Fallback if PWA icon is not yet loaded in some views
-          e.target.style.display = 'none';
-        }}
-      />
-      <div className="splash-text-fallback" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '16px' }}>
-        <Heart size={42} color="var(--accent-color)" fill="var(--accent-color)" className="spinning" style={{ animationDuration: '3s' }} />
-        <h2 style={{ fontSize: '24px', fontWeight: '800', color: 'var(--text-primary)', marginTop: '12px' }}>
-          Momentum
-        </h2>
-        <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: '600' }}>
-          Find your daily flow
-        </span>
+    <div className={`splash-container ${exit ? 'exit' : ''}`}>
+      <div className="splash-ripple"></div>
+      <div className="splash-logo-wrapper">
+        <img 
+          src="/favicon.png" 
+          alt="Logo" 
+          className="splash-logo"
+          onError={(e) => {
+            // Fallback if PWA icon is not yet loaded in some views
+            e.target.style.display = 'none';
+          }}
+        />
+        <h1 className="splash-title">Momentum</h1>
+        <span className="splash-sub">Find your daily flow</span>
       </div>
     </div>
   );
@@ -119,12 +115,21 @@ const OnboardingForm = () => {
 const MainAppContent = () => {
   const { activeTab, loading, displayName, gender } = useContext(AppContext);
   const [showSplash, setShowSplash] = useState(true);
+  const [exitSplash, setExitSplash] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const exitTimer = setTimeout(() => {
+      setExitSplash(true);
+    }, 2000); // 2.0s: slide up animation trigger
+
+    const unmountTimer = setTimeout(() => {
       setShowSplash(false);
-    }, 2500); // 2.5 seconds matching keyframe fades
-    return () => clearTimeout(timer);
+    }, 2700); // 2.7s: fully unmount from DOM
+
+    return () => {
+      clearTimeout(exitTimer);
+      clearTimeout(unmountTimer);
+    };
   }, []);
 
   if (loading) {
@@ -171,7 +176,7 @@ const MainAppContent = () => {
 
   return (
     <>
-      {renderSplash && <SplashOverlay />}
+      {renderSplash && <SplashOverlay exit={exitSplash} />}
       {renderOnboarding && <OnboardingForm />}
 
       {!renderOnboarding && (

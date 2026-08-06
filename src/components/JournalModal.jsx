@@ -100,7 +100,7 @@ const JournalModal = () => {
           <button 
             onClick={() => setShowJournalModal(false)}
             className="btn btn-secondary flex-center"
-            style={{ width: '30px', height: '30px', minHeight: '30px', padding: 0, borderRadius: '50%', background: '#f3eae3', border: 'none' }}
+            style={{ width: '30px', height: '30px', minHeight: '30px', padding: 0, borderRadius: '50%', background: 'var(--border-color)', border: 'none' }}
           >
             <X size={14} color="var(--text-primary)" />
           </button>
@@ -147,7 +147,7 @@ const JournalModal = () => {
                       height: '36px',
                       borderRadius: '10px',
                       border: isActive ? '2px solid var(--accent-color)' : '1px solid var(--border-color)',
-                      background: isActive ? 'var(--accent-light)' : '#ffffff',
+                      background: isActive ? 'var(--accent-light)' : 'var(--bg-card)',
                       cursor: 'pointer'
                     }}
                   >
@@ -171,7 +171,7 @@ const JournalModal = () => {
                       className="flex-row"
                       style={{
                         padding: '10px 12px',
-                        background: '#fdf8f5',
+                        background: 'var(--bg-main)',
                         border: '1.5px solid var(--border-color)',
                         borderRadius: '12px'
                       }}

@@ -3,7 +3,7 @@ name: Build Android APK (Cloud Compiler)
 on:
   push:
     branches: [ main, master ]
-  workflow_dispatch:
+  workflow_dispatch: # Allows manual trigger from the GitHub Actions tab
 
 jobs:
   build:
@@ -11,26 +11,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the repository code
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # Step 2: Set up Node.js environment (Node 22 is required for Capacitor CLI)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
+      # Step 3: Install web dependencies
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
 
+      # Step 4: Compile the React web application
       - name: Build Web App
         run: npm run build
 
+      # Step 5: Set up Java Development Kit (JDK) 21 (Required by modern Capacitor Gradle configurations)
       - name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
           distribution: 'zulu'
           java-version: '21'
 
+      # Step 6: Check and initialize Android folder if missing (e.g. if gitignored)
       - name: Capacitor Android Sync
         run: |
           if [ ! -d "android" ]; then
@@ -39,12 +45,31 @@ jobs:
             npx cap sync
           fi
 
+      # Step 7: Dynamically compile Android launcher icons in the runner from PWA assets
+      - name: Generate Android Mipmap Icons
+        run: |
+          SRC="public/icon-512.png"
+          RES_DIR="android/app/src/main/res"
+          if [ -f "$SRC" ]; then
+            echo "Generating Android launcher mipmap icons..."
+            mkdir -p "$RES_DIR/mipmap-mdpi" && convert "$SRC" -resize 48x48 "$RES_DIR/mipmap-mdpi/ic_launcher.png" && convert "$SRC" -resize 48x48 "$RES_DIR/mipmap-mdpi/ic_launcher_round.png"
+            mkdir -p "$RES_DIR/mipmap-hdpi" && convert "$SRC" -resize 72x72 "$RES_DIR/mipmap-hdpi/ic_launcher.png" && convert "$SRC" -resize 72x72 "$RES_DIR/mipmap-hdpi/ic_launcher_round.png"
+            mkdir -p "$RES_DIR/mipmap-xhdpi" && convert "$SRC" -resize 96x96 "$RES_DIR/mipmap-xhdpi/ic_launcher.png" && convert "$SRC" -resize 96x96 "$RES_DIR/mipmap-xhdpi/ic_launcher_round.png"
+            mkdir -p "$RES_DIR/mipmap-xxhdpi" && convert "$SRC" -resize 144x144 "$RES_DIR/mipmap-xxhdpi/ic_launcher.png" && convert "$SRC" -resize 144x144 "$RES_DIR/mipmap-xxhdpi/ic_launcher_round.png"
+            mkdir -p "$RES_DIR/mipmap-xxxhdpi" && convert "$SRC" -resize 192x192 "$RES_DIR/mipmap-xxxhdpi/ic_launcher.png" && convert "$SRC" -resize 192x192 "$RES_DIR/mipmap-xxxhdpi/ic_launcher_round.png"
+            echo "Android mipmap icons completed!"
+          else
+            echo "Warning: Source icon-512.png not found."
+          fi
+
+      # Step 8: Build Android Debug APK using Gradle Wrapper
       - name: Build Android APK
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug
 
+      # Step 9: Upload the compiled APK as a downloadable GitHub Action Artifact
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:

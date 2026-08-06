@@ -172,7 +172,7 @@ const SettingsView = () => {
               className="flex-row"
               style={{
                 padding: '10px 12px',
-                background: '#fdf8f5',
+                background: 'var(--bg-main)',
                 border: '1.5px solid var(--border-color)',
                 borderRadius: '12px'
               }}
