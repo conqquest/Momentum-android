@@ -154,8 +154,14 @@ export const AppProvider = ({ children }) => {
   const [activeTab, setActiveTab] = useState('home');
   const [selectedDate, setSelectedDate] = useState(getTodayDateString());
   const [showJournalModal, setShowJournalModal] = useState(false);
+  
+  // Custom display profile settings
   const [displayName, setDisplayName] = useState(() => {
-    return localStorage.getItem('profile_name') || 'Jose Maria';
+    return localStorage.getItem('profile_name') || '';
+  });
+
+  const [gender, setGender] = useState(() => {
+    return localStorage.getItem('profile_gender') || '';
   });
 
   // Dynamic habits configurations
@@ -201,6 +207,7 @@ export const AppProvider = ({ children }) => {
             const data = docSnap.data();
             if (data.logs) setLogs(data.logs);
             if (data.displayName) setDisplayName(data.displayName);
+            if (data.gender) setGender(data.gender);
             if (data.habits) setHabits(data.habits);
             console.log('Mindful log fetched from Firestore');
           }
@@ -221,6 +228,10 @@ export const AppProvider = ({ children }) => {
   }, [displayName]);
 
   useEffect(() => {
+    localStorage.setItem('profile_gender', gender);
+  }, [gender]);
+
+  useEffect(() => {
     localStorage.setItem('mindful_habits', JSON.stringify(habits));
   }, [habits]);
 
@@ -239,6 +250,7 @@ export const AppProvider = ({ children }) => {
         await setDoc(userDocRef, {
           logs,
           displayName,
+          gender,
           habits,
           lastUpdated: new Date().toISOString()
         }, { merge: true });
@@ -251,7 +263,7 @@ export const AppProvider = ({ children }) => {
     }, 1500);
 
     return () => clearTimeout(timer);
-  }, [logs, displayName, habits, user, loading]);
+  }, [logs, displayName, gender, habits, user, loading]);
 
   // Update a daily entry log
   const saveDailyEntry = (date, entryObj) => {
@@ -305,8 +317,12 @@ export const AppProvider = ({ children }) => {
   const clearAllData = () => {
     localStorage.removeItem('mindful_logs');
     localStorage.removeItem('mindful_habits');
+    localStorage.removeItem('profile_name');
+    localStorage.removeItem('profile_gender');
     setLogs({});
     setHabits(DEFAULT_HABITS);
+    setDisplayName('');
+    setGender('');
   };
 
   const saveFirebaseConfig = (config) => {
@@ -332,6 +348,8 @@ export const AppProvider = ({ children }) => {
         setShowJournalModal,
         displayName,
         setDisplayName,
+        gender,
+        setGender,
         habits,
         logs,
         toggleHabit,

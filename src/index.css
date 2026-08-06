@@ -24,6 +24,55 @@
   --app-max-width: 480px;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-main: #141211;        /* Dark Warm Stone */
+    --bg-card: #1f1a18;        /* Darker card container */
+    --border-color: #2b2421;    /* Dark Beige Border */
+    --text-primary: #f5ebe6;    /* Cream Ivory Text */
+    --text-secondary: #a39391;  /* Muted Cocoa */
+    --text-muted: #615351;      /* Dark sand */
+    
+    --accent-color: #f59e0b;    /* Accent Golden Yellow */
+    --accent-hover: #d97706;
+    --accent-light: #3b2a14;    /* Dark Amber highlight */
+    --btn-text: #ffffff;
+    
+    /* Darkened Emotion Pastel Colors */
+    --color-happy: #651a1a;     /* Dark Rose */
+    --color-sad: #17326e;       /* Dark Blue */
+    --color-calm: #064e3b;      /* Dark Mint */
+    --color-anxious: #4c1d95;   /* Dark Lavender */
+  }
+
+  body {
+    background-color: #0c0b0a !important; /* Dark outer background */
+  }
+
+  .glass-card,
+  .moment-card,
+  .habit-item,
+  .prompt-card {
+    background: #1f1a18 !important;
+    border-color: var(--border-color) !important;
+  }
+
+  input[type="text"],
+  textarea,
+  select {
+    background: #141211 !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+  }
+
+  .emoji-btn,
+  .pill-btn {
+    background: #1f1a18 !important;
+    border-color: var(--border-color) !important;
+  }
+}
+
+
 /* Reset and Base Styles */
 * {
   box-sizing: border-box;
@@ -598,4 +647,87 @@ textarea:focus {
 .habit-item:hover {
   border-color: var(--text-muted);
 }
+
+/* Splash Screen overlay styles */
+.splash-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-main);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  animation: fadeOutSplash 0.5s ease 2.2s forwards;
+  pointer-events: auto;
+}
+
+@keyframes fadeOutSplash {
+  from { opacity: 1; visibility: visible; }
+  to { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+
+.splash-logo {
+  width: 140px;
+  height: 140px;
+  border-radius: 35px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+  animation: breath 2s infinite ease-in-out;
+  border: 4px solid var(--border-color);
+  object-fit: cover;
+}
+
+@keyframes breath {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+/* Onboarding Screen layout */
+.onboarding-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-main);
+  z-index: 2500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.onboarding-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: 28px;
+  padding: 32px 24px;
+  box-shadow: 0 12px 36px rgba(61, 46, 44, 0.08);
+}
+
+.gender-select-btn {
+  flex: 1;
+  height: 48px;
+  border-radius: 14px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.gender-select-btn.active {
+  border-color: var(--accent-color);
+  background: var(--accent-light);
+  color: var(--btn-text);
+}
+
 
