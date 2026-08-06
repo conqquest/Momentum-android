@@ -52,11 +52,31 @@ jobs:
           RES_DIR="android/app/src/main/res"
           if [ -f "$SRC" ]; then
             echo "Generating Android launcher mipmap icons..."
-            mkdir -p "$RES_DIR/mipmap-mdpi" && convert "$SRC" -resize 48x48 "$RES_DIR/mipmap-mdpi/ic_launcher.png" && convert "$SRC" -resize 48x48 "$RES_DIR/mipmap-mdpi/ic_launcher_round.png"
-            mkdir -p "$RES_DIR/mipmap-hdpi" && convert "$SRC" -resize 72x72 "$RES_DIR/mipmap-hdpi/ic_launcher.png" && convert "$SRC" -resize 72x72 "$RES_DIR/mipmap-hdpi/ic_launcher_round.png"
-            mkdir -p "$RES_DIR/mipmap-xhdpi" && convert "$SRC" -resize 96x96 "$RES_DIR/mipmap-xhdpi/ic_launcher.png" && convert "$SRC" -resize 96x96 "$RES_DIR/mipmap-xhdpi/ic_launcher_round.png"
-            mkdir -p "$RES_DIR/mipmap-xxhdpi" && convert "$SRC" -resize 144x144 "$RES_DIR/mipmap-xxhdpi/ic_launcher.png" && convert "$SRC" -resize 144x144 "$RES_DIR/mipmap-xxhdpi/ic_launcher_round.png"
-            mkdir -p "$RES_DIR/mipmap-xxxhdpi" && convert "$SRC" -resize 192x192 "$RES_DIR/mipmap-xxxhdpi/ic_launcher.png" && convert "$SRC" -resize 192x192 "$RES_DIR/mipmap-xxxhdpi/ic_launcher_round.png"
+            mkdir -p "$RES_DIR/mipmap-mdpi"
+            convert "$SRC" -resize 48x48 "$RES_DIR/mipmap-mdpi/ic_launcher.png"
+            convert "$SRC" -resize 48x48 "$RES_DIR/mipmap-mdpi/ic_launcher_round.png"
+            convert "$SRC" -resize 76x76 -background "#07E56E" -gravity center -extent 108x108 "$RES_DIR/mipmap-mdpi/ic_launcher_foreground.png"
+
+            mkdir -p "$RES_DIR/mipmap-hdpi"
+            convert "$SRC" -resize 72x72 "$RES_DIR/mipmap-hdpi/ic_launcher.png"
+            convert "$SRC" -resize 72x72 "$RES_DIR/mipmap-hdpi/ic_launcher_round.png"
+            convert "$SRC" -resize 114x114 -background "#07E56E" -gravity center -extent 162x162 "$RES_DIR/mipmap-hdpi/ic_launcher_foreground.png"
+
+            mkdir -p "$RES_DIR/mipmap-xhdpi"
+            convert "$SRC" -resize 96x96 "$RES_DIR/mipmap-xhdpi/ic_launcher.png"
+            convert "$SRC" -resize 96x96 "$RES_DIR/mipmap-xhdpi/ic_launcher_round.png"
+            convert "$SRC" -resize 152x152 -background "#07E56E" -gravity center -extent 216x216 "$RES_DIR/mipmap-xhdpi/ic_launcher_foreground.png"
+
+            mkdir -p "$RES_DIR/mipmap-xxhdpi"
+            convert "$SRC" -resize 144x144 "$RES_DIR/mipmap-xxhdpi/ic_launcher.png"
+            convert "$SRC" -resize 144x144 "$RES_DIR/mipmap-xxhdpi/ic_launcher_round.png"
+            convert "$SRC" -resize 228x228 -background "#07E56E" -gravity center -extent 324x324 "$RES_DIR/mipmap-xxhdpi/ic_launcher_foreground.png"
+
+            mkdir -p "$RES_DIR/mipmap-xxxhdpi"
+            convert "$SRC" -resize 192x192 "$RES_DIR/mipmap-xxxhdpi/ic_launcher.png"
+            convert "$SRC" -resize 192x192 "$RES_DIR/mipmap-xxxhdpi/ic_launcher_round.png"
+            convert "$SRC" -resize 304x304 -background "#07E56E" -gravity center -extent 432x432 "$RES_DIR/mipmap-xxxhdpi/ic_launcher_foreground.png"
+            
             echo "Android mipmap icons completed!"
           else
             echo "Warning: Source icon-512.png not found."
