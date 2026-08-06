@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { subscribeToAuthChanges, isRealFirebase, db } from '../firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { Preferences } from '@capacitor/preferences';
 
 export const AppContext = createContext();
 
@@ -162,6 +163,38 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('mindful_logs', JSON.stringify(logs));
   }, [logs]);
+
+  // Sync today's habit completion status to SharedPreferences for native AppWidget access
+  useEffect(() => {
+    const syncWidgetData = async () => {
+      try {
+        const todayStr = getTodayDateString();
+        const todayLog = logs[todayStr] || {};
+        const checked = todayLog.habitsChecked || {};
+        const completedCount = habits.filter(h => checked[h.id] === true).length;
+        const totalCount = habits.length;
+
+        // Save keys using Preferences so it registers in CapacitorStorage shared preference
+        await Preferences.set({
+          key: 'widget_habits_completed',
+          value: String(completedCount)
+        });
+        await Preferences.set({
+          key: 'widget_habits_total',
+          value: String(totalCount)
+        });
+        
+        // Also save today's date string to check freshness
+        await Preferences.set({
+          key: 'widget_last_update_date',
+          value: todayStr
+        });
+      } catch (err) {
+        console.warn('Preferences widget sync failed:', err);
+      }
+    };
+    syncWidgetData();
+  }, [logs, habits]);
 
   // Sync to Firestore
   useEffect(() => {

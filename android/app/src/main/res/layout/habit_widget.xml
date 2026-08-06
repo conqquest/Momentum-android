@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/transparent"
+    android:padding="8dp">
+
+    <!-- Dark rounded widget card background wrapper -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#141211"
+        android:padding="16dp"
+        android:elevation="4dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+            
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@mipmap/ic_launcher_round"
+                android:layout_marginRight="6dp"/>
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Momentum"
+                android:textColor="#f5ebe6"
+                android:textSize="12sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <!-- Progress Description Text -->
+        <TextView
+            android:id="@+id/widget_habit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No habits tracked today"
+            android:textColor="#a39391"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Progress Bar Indicator -->
+        <ProgressBar
+            android:id="@+id/widget_progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:max="100"
+            android:progress="0"
+            android:progressDrawable="@android:drawable/progress_horizontal"
+            android:layout_marginBottom="6dp"/>
+
+        <TextView
+            android:id="@+id/widget_date_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tap to log today's flow"
+            android:textColor="#615351"
+            android:textSize="10sp"/>
+
+    </LinearLayout>
+</LinearLayout>
