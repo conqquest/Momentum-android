@@ -19,8 +19,8 @@
   --color-calm: #a7f3d0;      /* Soft Mint Green */
   --color-anxious: #fbcfe8;   /* Soft Lavender */
   
-  /* Typography */
-  --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* Typography - San Francisco System Fonts preferred stack */
+  --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Compact Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --app-max-width: 480px;
 }
 
@@ -56,10 +56,24 @@
   .prompt-card,
   .modal-content,
   .reader-settings,
-  .onboarding-card {
+  .onboarding-card,
+  .date-card,
+  .bottom-nav {
     background: var(--bg-card) !important;
     border-color: var(--border-color) !important;
     color: var(--text-primary) !important;
+  }
+
+  /* Make active dates readable and stand out in dark mode */
+  .date-card.active {
+    background: var(--accent-color) !important;
+    border-color: var(--accent-color) !important;
+    color: var(--btn-text) !important;
+  }
+
+  .date-card.active .day-lbl,
+  .date-card.active .date-num {
+    color: var(--btn-text) !important;
   }
 
   /* For habit rows inside cards and modal */
