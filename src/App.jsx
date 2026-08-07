@@ -113,7 +113,7 @@ const OnboardingForm = () => {
 };
 
 const MainAppContent = () => {
-  const { activeTab, loading, displayName, gender } = useContext(AppContext);
+  const { activeTab, loading, displayName, gender, themeColor } = useContext(AppContext);
   const [showSplash, setShowSplash] = useState(true);
   const [exitSplash, setExitSplash] = useState(false);
 
@@ -131,6 +131,10 @@ const MainAppContent = () => {
       clearTimeout(unmountTimer);
     };
   }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', themeColor || 'default');
+  }, [themeColor]);
 
   if (loading) {
     return (

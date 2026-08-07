@@ -94,6 +94,10 @@ export const AppProvider = ({ children }) => {
     return localStorage.getItem('profile_gender') || '';
   });
 
+  const [themeColor, setThemeColor] = useState(() => {
+    return localStorage.getItem('profile_theme') || 'default';
+  });
+
   // Dynamic habits configurations
   const [habits, setHabits] = useState(() => {
     const local = localStorage.getItem('mindful_habits');
@@ -133,6 +137,7 @@ export const AppProvider = ({ children }) => {
             if (data.logs) setLogs(data.logs);
             if (data.displayName) setDisplayName(data.displayName);
             if (data.gender) setGender(data.gender);
+            if (data.themeColor) setThemeColor(data.themeColor);
             if (data.habits) setHabits(data.habits);
             console.log('Mindful log fetched from Firestore');
           }
@@ -208,6 +213,7 @@ export const AppProvider = ({ children }) => {
           logs,
           displayName,
           gender,
+          themeColor,
           habits,
           lastUpdated: new Date().toISOString()
         }, { merge: true });
@@ -220,7 +226,7 @@ export const AppProvider = ({ children }) => {
     }, 1500);
 
     return () => clearTimeout(timer);
-  }, [logs, displayName, gender, habits, user, loading]);
+  }, [logs, displayName, gender, themeColor, habits, user, loading]);
 
   // Update a daily entry log
   const saveDailyEntry = (date, entryObj) => {
@@ -276,10 +282,12 @@ export const AppProvider = ({ children }) => {
     localStorage.removeItem('mindful_habits');
     localStorage.removeItem('profile_name');
     localStorage.removeItem('profile_gender');
+    localStorage.removeItem('profile_theme');
     setLogs({});
     setHabits(DEFAULT_HABITS);
     setDisplayName('');
     setGender('');
+    setThemeColor('default');
   };
 
   const saveFirebaseConfig = (config) => {
@@ -307,7 +315,10 @@ export const AppProvider = ({ children }) => {
         setDisplayName,
         gender,
         setGender,
+        themeColor,
+        setThemeColor,
         habits,
+        setHabits,
         logs,
         toggleHabit,
         addHabit,

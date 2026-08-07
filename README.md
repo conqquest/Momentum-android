@@ -1,16 +1,76 @@
-# React + Vite
+# Momentum: Mindful Habit Tracker ✨
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Momentum is a beautifully designed, premium habit tracker and journaling app built to help you find your daily flow. With a focus on aesthetic minimalism and data visualization, it makes tracking your daily habits and emotional wellness feel rewarding.
 
-Currently, two official plugins are available:
+## 🌟 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Beautiful UI/UX:** A warm, premium aesthetic (cocoa and golden accents) that feels incredibly clean and responsive. Includes full Dark Mode support.
+- **Premium Analytics (Journey View):**
+  - **Contribution Heatmap:** GitHub-style activity grid showing your habit completion over the last 6 months.
+  - **Mood Index:** Smooth Catmull-Rom sparkline charts tracking your emotional wellness.
+  - **Habit Wave:** Visual area charts mapping out your daily check-in ratios.
+  - **Emotion Splits:** Dynamic SVG donut charts breaking down your logged moods (Happy, Calm, Sad, Anxious).
+- **Customizable Widgets:** A "Widget Studio" to preview how your stats will look on your Android home screen with neon glowing themes.
+- **Smart Journaling:** Log daily reflections, track weather, and record your current emotional state.
+- **Offline First & Cloud Sync:** Use it entirely offline (saving to local storage), or seamlessly connect to Firebase to sync your data across devices.
+- **Android Ready:** Built with Capacitor, ready to be compiled into a native Android APK with adaptive launcher icons.
 
-## React Compiler
+## 🛠️ Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend:** React, Vite
+- **Styling:** Vanilla CSS with a carefully crafted design system (no heavy CSS frameworks)
+- **Icons:** Lucide React
+- **Mobile Integration:** Capacitor (for native Android builds and widgets)
+- **Backend/Auth:** Firebase (Firestore & Google Authentication)
 
-## Expanding the Oxlint configuration
+## 🚀 Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+### Prerequisites
+
+Make sure you have Node.js and npm installed.
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/conqquest/habit_tracker.git
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd habit_tracker
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+### Building for Android
+
+This project uses Capacitor to wrap the web app into a native Android application.
+
+1. Build the web assets:
+   ```bash
+   npm run build
+   ```
+2. Sync the assets to the Android project:
+   ```bash
+   npx cap sync android
+   ```
+3. Open Android Studio to build the APK:
+   ```bash
+   npx cap open android
+   ```
+
+## ☁️ GitHub Pages Deployment
+
+The app is configured to be deployed automatically to GitHub Pages using GitHub Actions. Any push to the `main` branch triggers the deployment workflow (`build-apk.yml`). 
+
+*Note: Ensure the repository settings have GitHub Pages source set to the `gh-pages` branch.*
+
+## 🤝 Contributing
+
+Contributions are always welcome! Feel free to open an issue or submit a pull request if you have ideas for new features or improvements.

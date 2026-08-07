@@ -8,10 +8,10 @@
   --text-muted: #bdaeac;      /* Light Cocoa Sand */
   
   /* Accent Colors */
-  --accent-color: #fbbf24;    /* Warm Golden Yellow */
-  --accent-hover: #f59e0b;    /* Deeper Amber */
-  --accent-light: #fef3c7;    /* Light Amber */
-  --btn-text: #3d2e2c;        /* Brown Text for Buttons */
+  --accent-color: #111111;    /* Sharp Black */
+  --accent-hover: #333333;    /* Dark Gray */
+  --accent-light: #e5e5e5;    /* Light Gray */
+  --btn-text: #ffffff;        /* White Text for Buttons */
   
   /* Mood/Emotion Pastel Colors */
   --color-happy: #fca5a5;     /* Soft Rose Pink */
@@ -33,10 +33,10 @@
     --text-secondary: #a39391;  /* Muted Cocoa */
     --text-muted: #615351;      /* Dark sand */
     
-    --accent-color: #f59e0b;    /* Accent Golden Yellow */
-    --accent-hover: #d97706;
-    --accent-light: #3b2a14;    /* Dark Amber highlight */
-    --btn-text: #ffffff;
+    --accent-color: #ffffff;    /* Crisp White */
+    --accent-hover: #e5e5e5;    /* Off White */
+    --accent-light: #333333;    /* Dark Gray highlight */
+    --btn-text: #111111;        /* Black Text for Buttons */
     
     /* Darkened Emotion Pastel Colors */
     --color-happy: #651a1a;     /* Dark Rose */
@@ -107,14 +107,135 @@
   }
 }
 
+/* Custom Theme Colors */
+[data-theme="blue"] {
+  --accent-color: #3b82f6; 
+  --accent-hover: #2563eb; 
+  --accent-light: #dbeafe; 
+  --btn-text: #ffffff; 
+}
 
+[data-theme="purple"] {
+  --accent-color: #8b5cf6; 
+  --accent-hover: #7c3aed; 
+  --accent-light: #ede9fe; 
+  --btn-text: #ffffff; 
+}
 
+[data-theme="green"] {
+  --accent-color: #10b981; 
+  --accent-hover: #059669; 
+  --accent-light: #d1fae5; 
+  --btn-text: #ffffff; 
+}
+
+[data-theme="rose"] {
+  --accent-color: #f43f5e; 
+  --accent-hover: #e11d48; 
+  --accent-light: #ffe4e6; 
+  --btn-text: #ffffff; 
+}
+
+[data-theme="amber"] {
+  --accent-color: #fbbf24; 
+  --accent-hover: #f59e0b; 
+  --accent-light: #fef3c7; 
+  --btn-text: #3d2e2c; 
+}
+
+[data-theme="teal"] {
+  --accent-color: #14b8a6; 
+  --accent-hover: #0d9488; 
+  --accent-light: #ccfbf1; 
+  --btn-text: #ffffff; 
+}
+
+[data-theme="orange"] {
+  --accent-color: #f97316; 
+  --accent-hover: #ea580c; 
+  --accent-light: #ffedd5; 
+  --btn-text: #ffffff; 
+}
+
+[data-theme="pink"] {
+  --accent-color: #ec4899; 
+  --accent-hover: #db2777; 
+  --accent-light: #fce7f3; 
+  --btn-text: #ffffff; 
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-theme="blue"] {
+    --accent-color: #60a5fa; 
+    --accent-hover: #3b82f6; 
+    --accent-light: #1e3a8a; 
+    --btn-text: #ffffff; 
+  }
+  
+  [data-theme="purple"] {
+    --accent-color: #a78bfa; 
+    --accent-hover: #8b5cf6; 
+    --accent-light: #4c1d95; 
+    --btn-text: #ffffff; 
+  }
+  
+  [data-theme="green"] {
+    --accent-color: #34d399; 
+    --accent-hover: #10b981; 
+    --accent-light: #064e3b; 
+    --btn-text: #ffffff; 
+  }
+  
+  [data-theme="rose"] {
+    --accent-color: #fb7185; 
+    --accent-hover: #f43f5e; 
+    --accent-light: #881337; 
+    --btn-text: #ffffff; 
+  }
+  
+  [data-theme="amber"] {
+    --accent-color: #fbbf24; 
+    --accent-hover: #f59e0b; 
+    --accent-light: #78350f; 
+    --btn-text: #3d2e2c; 
+  }
+  
+  [data-theme="teal"] {
+    --accent-color: #2dd4bf; 
+    --accent-hover: #14b8a6; 
+    --accent-light: #134e4a; 
+    --btn-text: #ffffff; 
+  }
+  
+  [data-theme="orange"] {
+    --accent-color: #fb923c; 
+    --accent-hover: #f97316; 
+    --accent-light: #7c2d12; 
+    --btn-text: #ffffff; 
+  }
+  
+  [data-theme="pink"] {
+    --accent-color: #f472b6; 
+    --accent-hover: #ec4899; 
+    --accent-light: #831843; 
+    --btn-text: #ffffff; 
+  }
+}
 /* Reset and Base Styles */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Hide scrollbar utility for horizontally scrolling elements */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 body {
@@ -157,8 +278,8 @@ body {
 }
 
 .card-morning {
-  background: linear-gradient(135deg, #fef08a 0%, #fbbf24 100%);
-  color: #3d2e2c;
+  background: linear-gradient(135deg, #e5e5e5 0%, #ffffff 100%);
+  color: #111111;
 }
 
 .card-evening {
@@ -623,13 +744,13 @@ textarea:focus {
 }
 
 .btn-primary {
-  background: var(--accent-color);
-  color: var(--btn-text);
-  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.25);
+  background: #111111;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .btn-primary:hover {
-  background: var(--accent-hover);
+  background: #000000;
 }
 
 .btn-secondary {
@@ -1200,14 +1321,14 @@ textarea:focus {
 }
 
 .profile-btn-primary {
-  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
-  color: var(--btn-text);
-  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.25);
+  background: #111111;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .profile-btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(251, 191, 36, 0.35);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
 }
 
 .profile-btn-primary:active {
@@ -1444,8 +1565,9 @@ textarea:focus {
   }
 
   .profile-btn-primary {
-    background: linear-gradient(135deg, var(--accent-color), var(--accent-hover)) !important;
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2) !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1) !important;
   }
 
   .profile-btn-outline {

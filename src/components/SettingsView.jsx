@@ -5,7 +5,7 @@ import {
   Database, ShieldAlert, Key, Download, Upload, RefreshCw, 
   User, Plus, Trash2, ChevronDown, ChevronUp, Flame, Target,
   CalendarDays, TrendingUp, LogIn, Cloud, CloudOff, FileDown, 
-  FileUp, Settings, Sparkles, Award
+  FileUp, Settings, Sparkles, Award, Palette
 } from 'lucide-react';
 
 /* ─── Contribution Heatmap Component ─── */
@@ -163,7 +163,9 @@ const SettingsView = () => {
     user,
     habits,
     addHabit,
-    removeHabit
+    removeHabit,
+    themeColor,
+    setThemeColor
   } = useContext(AppContext);
   
   const [tempName, setTempName] = useState(displayName);
@@ -394,6 +396,51 @@ const SettingsView = () => {
         </div>
         <div className="profile-section-body" style={{ paddingTop: '4px' }}>
           <ContributionHeatmap logs={logs} habits={habits} />
+        </div>
+      </div>
+
+      {/* ═══ Theme Colors ═══ */}
+      <div className="profile-section">
+        <div className="profile-section-header" style={{ cursor: 'default' }}>
+          <div className="profile-section-title">
+            <div className="profile-section-icon">
+              <Palette size={16} color="var(--accent-color)" />
+            </div>
+            <span>Appearance Theme</span>
+          </div>
+        </div>
+        <div className="profile-section-body" style={{ paddingTop: '12px', paddingBottom: '16px' }}>
+          <div className="hide-scrollbar" style={{ display: 'flex', gap: '14px', overflowX: 'auto', padding: '4px 18px 8px 18px' }}>
+            {[
+              { id: 'default', color: 'var(--text-primary)' },
+              { id: 'blue', color: '#3b82f6' },
+              { id: 'purple', color: '#8b5cf6' },
+              { id: 'green', color: '#10b981' },
+              { id: 'rose', color: '#f43f5e' },
+              { id: 'amber', color: '#fbbf24' },
+              { id: 'teal', color: '#14b8a6' },
+              { id: 'orange', color: '#f97316' },
+              { id: 'pink', color: '#ec4899' }
+            ].map(theme => (
+              <button
+                key={theme.id}
+                onClick={() => setThemeColor(theme.id)}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  background: theme.color,
+                  border: themeColor === theme.id ? '2px solid var(--bg-card)' : '2px solid transparent',
+                  boxShadow: themeColor === theme.id ? '0 0 0 2px var(--text-primary)' : '0 2px 8px rgba(0,0,0,0.12)',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                  margin: '2px', /* Crucial to prevent clipping of the 2px box-shadow */
+                  transition: 'all 0.2s ease'
+                }}
+                aria-label={`Select ${theme.id} theme`}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
