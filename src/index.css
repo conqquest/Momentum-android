@@ -278,8 +278,9 @@ body {
 }
 
 .card-morning {
-  background: linear-gradient(135deg, #e5e5e5 0%, #ffffff 100%);
-  color: #111111;
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--accent-light) 100%);
+  color: var(--text-primary);
+  border: 1px solid var(--accent-color);
 }
 
 .card-evening {
@@ -361,7 +362,7 @@ body {
 
 /* Header customization */
 .app-header {
-  padding: 16px 20px;
+  padding: 40px 20px 16px;
   background: transparent;
   display: flex;
   align-items: center;

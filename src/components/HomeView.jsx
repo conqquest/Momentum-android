@@ -94,13 +94,13 @@ const HomeView = () => {
 
         {/* sun illustration */}
         <div style={{ position: 'absolute', bottom: 0, right: 0, width: '130px', height: '110px', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', bottom: '-10px', right: '-10px', width: '90px', height: '90px', borderRadius: '50%', background: '#84cc16', opacity: 0.7 }}></div>
-          <div style={{ position: 'absolute', bottom: '-20px', right: '30px', width: '100px', height: '100px', borderRadius: '50%', background: '#4d7c0f' }}></div>
+          <div style={{ position: 'absolute', bottom: '-10px', right: '-10px', width: '90px', height: '90px', borderRadius: '50%', background: 'var(--accent-color)', opacity: 0.4 }}></div>
+          <div style={{ position: 'absolute', bottom: '-20px', right: '30px', width: '100px', height: '100px', borderRadius: '50%', background: 'var(--accent-color)', opacity: 0.2 }}></div>
           
-          <div style={{ position: 'absolute', bottom: '40px', right: '35px', width: '54px', height: '54px', borderRadius: '50%', background: '#f97316', border: '3px solid #3d2e2c', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#3d2e2c', position: 'absolute', left: '14px', top: '18px' }}></div>
-            <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#3d2e2c', position: 'absolute', right: '14px', top: '18px' }}></div>
-            <div style={{ width: '10px', height: '5px', borderBottom: '2.5px solid #3d2e2c', borderRadius: '0 0 10px 10px', position: 'absolute', top: '24px' }}></div>
+          <div style={{ position: 'absolute', bottom: '40px', right: '35px', width: '54px', height: '54px', borderRadius: '50%', background: 'var(--accent-color)', border: '3px solid var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+            <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'var(--btn-text)', position: 'absolute', left: '14px', top: '18px' }}></div>
+            <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'var(--btn-text)', position: 'absolute', right: '14px', top: '18px' }}></div>
+            <div style={{ width: '10px', height: '5px', borderBottom: '2.5px solid var(--btn-text)', borderRadius: '0 0 10px 10px', position: 'absolute', top: '24px' }}></div>
           </div>
         </div>
       </div>
