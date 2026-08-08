@@ -1,345 +1,262 @@
-import React, { useContext, useState } from 'react';
-import { MINDFUL_BOOKS } from '../context/AppContext';
+import React, { useContext, useMemo } from 'react';
+import { AppContext, getTodayDateString } from '../context/AppContext';
+import { Capacitor } from '@capacitor/core';
+import { CapacitorPedometer } from '@capgo/capacitor-pedometer';
 import { 
-  ChevronLeft, Settings, Volume2, Play, Pause, 
-  Sun, Moon, AlignLeft, AlignJustify, AlignRight, Heart 
+  Activity, Scale, Ruler, User as UserIcon, Plus, Info, Zap
 } from 'lucide-react';
 
-const AUTHORS = [
-  { name: 'Agus S', avatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=Agus' },
-  { name: 'Ani A', avatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=Ani' },
-  { name: 'Budi O', avatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=Budi' },
-  { name: 'Susi', avatar: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=Susi' }
-];
+const NutritionProgress = ({ label, current, target, unit, color }) => {
+  const percentage = Math.min(100, Math.round((current / target) * 100)) || 0;
+  
+  return (
+    <div style={{ marginBottom: '16px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '800', marginBottom: '6px' }}>
+        <span>{label}</span>
+        <span style={{ opacity: 0.7 }}>{current} / {target}{unit}</span>
+      </div>
+      <div style={{ width: '100%', height: '8px', background: 'var(--bg-main)', borderRadius: '4px', overflow: 'hidden' }}>
+        <div 
+          style={{ 
+            height: '100%', 
+            width: `${percentage}%`, 
+            background: color,
+            borderRadius: '4px',
+            transition: 'width 0.3s ease'
+          }} 
+        />
+      </div>
+    </div>
+  );
+};
 
 const ExploreView = () => {
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [activeBook, setActiveBook] = useState(null); // Selected book for reading
-  const [readMode, setReadMode] = useState('text'); // 'text' or 'audio'
-  const [isPlaying, setIsPlaying] = useState(false); // Audio player simulation
-  const [fontSize, setFontSize] = useState(16); // px font size control
-  const [readerTheme, setReaderTheme] = useState('beige'); // 'beige', 'dark', 'slate'
-  const [textAlign, setTextAlign] = useState('left'); // 'left', 'justify', 'right'
-  const [brightness, setBrightness] = useState(100); // 0-100%
+  const { userStats, setUserStats, nutritionLogs, setNutritionLogs, gender, themeColor } = useContext(AppContext);
+  const today = getTodayDateString();
+  const [trackingStatus, setTrackingStatus] = React.useState('idle');
 
-  // Category filter
-  const categories = ['All', 'Fantasy', 'Fiction', 'Mystery'];
-  
-  const filteredBooks = selectedCategory === 'All'
-    ? MINDFUL_BOOKS
-    : MINDFUL_BOOKS.filter(b => b.category === selectedCategory);
+  const todayLog = nutritionLogs[today] || {
+    protein: 0,
+    carbs: 0,
+    fats: 0,
+    iron: 0,
+    steps: 0
+  };
 
-  // Theme styling definitions for reader modal
-  const getThemeStyles = () => {
-    switch (readerTheme) {
-      case 'dark':
-        return { background: '#3d2e2c', color: '#fdf8f5', border: '#5c4845' };
-      case 'slate':
-        return { background: '#475569', color: '#f8fafc', border: '#64748b' };
-      case 'beige':
-      default:
-        return { background: '#fdf8f5', color: '#3d2e2c', border: '#f3eae3' };
+  React.useEffect(() => {
+    let listener = null;
+    const initTracking = async () => {
+      if (trackingStatus === 'tracking' && Capacitor.isNativePlatform()) {
+        try {
+          await CapacitorPedometer.start();
+          listener = await CapacitorPedometer.addListener('step', (data) => {
+            // Data usually contains { steps: number }
+            if (data && data.steps) {
+              setNutritionLogs(prev => ({
+                ...prev,
+                [today]: {
+                  ...(prev[today] || { protein: 0, carbs: 0, fats: 0, iron: 0, steps: 0 }),
+                  steps: data.steps
+                }
+              }));
+            }
+          });
+        } catch (e) {
+          console.error("Pedometer error:", e);
+        }
+      }
+    };
+    initTracking();
+    
+    return () => {
+      if (listener) listener.remove();
+    };
+  }, [trackingStatus, today, setNutritionLogs]);
+
+  const handleUpdateStat = (field, value) => {
+    setUserStats(prev => ({ ...prev, [field]: Number(value) || 0 }));
+  };
+
+  const handleLogNutrition = (field, amount) => {
+    setNutritionLogs(prev => ({
+      ...prev,
+      [today]: {
+        ...(prev[today] || { protein: 0, carbs: 0, fats: 0, iron: 0, steps: 0 }),
+        [field]: (prev[today]?.[field] || 0) + amount
+      }
+    }));
+  };
+
+  const requestPedometerPermission = async () => {
+    if (!Capacitor.isNativePlatform()) {
+      alert("Auto-tracking is only available on iOS/Android devices. Mocking approval for web testing.");
+      setTrackingStatus('tracking');
+      return;
+    }
+    
+    try {
+      const permission = await CapacitorPedometer.requestPermissions();
+      if (permission.activity === 'granted') {
+        setTrackingStatus('tracking');
+      } else {
+        setTrackingStatus('denied');
+        alert("Permission denied. You can re-enable this in device settings.");
+      }
+    } catch (e) {
+      console.error(e);
     }
   };
 
-  const themeStyles = getThemeStyles();
+  const bmi = useMemo(() => {
+    if (!userStats.weight || !userStats.height) return 0;
+    const heightInMeters = userStats.height / 100;
+    return (userStats.weight / (heightInMeters * heightInMeters)).toFixed(1);
+  }, [userStats]);
+
+  const bmiStatus = useMemo(() => {
+    if (bmi < 18.5) return { label: 'Underweight', color: '#3b82f6' };
+    if (bmi < 25) return { label: 'Normal', color: '#10b981' };
+    if (bmi < 30) return { label: 'Overweight', color: '#f59e0b' };
+    return { label: 'Obese', color: '#ef4444' };
+  }, [bmi]);
+
+  // Macro Calculations based on standard heuristic (for building "best body")
+  const targetProtein = Math.round(userStats.weight * 1.8); // 1.8g per kg
+  const targetCarbs = Math.round(userStats.weight * 3); // 3g per kg
+  const targetFats = Math.round(userStats.weight * 0.8); // 0.8g per kg
+  const targetIron = gender === 'Female' ? 18 : 8; // mg
+  const targetSteps = 10000;
 
   return (
-    <div className="container">
-      {/* Search / Header Category selection */}
-      <h2 style={{ fontSize: '15px', fontWeight: '800', marginBottom: '8px' }}>E-book Recommendations</h2>
-      
-      <div className="pill-row">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setSelectedCategory(cat)}
-            className={`pill-btn ${selectedCategory === cat ? 'active' : ''}`}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
+    <div className="container" style={{ paddingBottom: '80px' }}>
+      <h2 style={{ fontSize: '20px', fontWeight: '800', marginBottom: '20px', color: 'var(--text-primary)' }}>Body & Nutrition</h2>
 
-      {/* Book Grid */}
-      <div className="book-grid" style={{ marginBottom: '24px' }}>
-        {filteredBooks.map((book) => (
-          <div key={book.id} className="book-card" onClick={() => setActiveBook(book)}>
-            <img src={book.coverUrl} alt={book.title} className="book-cover" />
-            <div style={{ padding: '0 4px' }}>
-              <span style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: '700' }}>{book.category}</span>
-              <h4 style={{ fontSize: '13px', fontWeight: '800', color: 'var(--text-primary)', marginTop: '2px', lineBreak: 'anywhere' }}>
-                {book.title}
-              </h4>
-              <p style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>
-                {book.episodes}
-              </p>
+      {/* Body Stats Input Card */}
+      <div className="profile-section">
+        <div className="profile-section-header" style={{ cursor: 'default' }}>
+          <div className="profile-section-title">
+            <div className="profile-section-icon">
+              <UserIcon size={16} color="var(--accent-color)" />
             </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Top Authors Section */}
-      <h2 style={{ fontSize: '15px', fontWeight: '800', marginBottom: '12px' }}>Top Authors</h2>
-      <div style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '12px' }}>
-        {AUTHORS.map((auth) => (
-          <div key={auth.name} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-            <img 
-              src={auth.avatar} 
-              alt={auth.name} 
-              style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#f3eae3', border: '2.5px solid #ffffff', boxShadow: '0 4px 10px rgba(61,46,44,0.04)' }} 
-            />
-            <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)' }}>{auth.name}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Fully Immersive E-Reader Modal */}
-      {activeBook && (
-        <div 
-          className="reader-overlay" 
-          style={{ 
-            background: themeStyles.background,
-            filter: `brightness(${brightness}%)`
-          }}
-        >
-          <div className="reader-content" style={{ color: themeStyles.color }}>
-            {/* Modal Header */}
-            <div className="flex-row" style={{ width: '100%', marginBottom: '24px', alignItems: 'center' }}>
-              <button 
-                onClick={() => {
-                  setActiveBook(null);
-                  setIsPlaying(false);
-                }} 
-                className="btn btn-secondary flex-center"
-                style={{ 
-                  width: '36px', 
-                  height: '36px', 
-                  borderRadius: '50%', 
-                  padding: 0, 
-                  minHeight: '36px',
-                  background: 'transparent',
-                  color: themeStyles.color,
-                  borderColor: themeStyles.border
-                }}
-              >
-                <ChevronLeft size={20} />
-              </button>
-
-              {/* Audio/Text Toggle */}
-              <div 
-                style={{ 
-                  background: readerTheme === 'beige' ? '#f3eae3' : 'rgba(255,255,255,0.08)', 
-                  borderRadius: '20px', 
-                  padding: '3px',
-                  display: 'flex',
-                  gap: '2px'
-                }}
-              >
-                <button
-                  onClick={() => setReadMode('audio')}
-                  style={{
-                    padding: '6px 14px',
-                    borderRadius: '16px',
-                    border: 'none',
-                    fontSize: '11px',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    background: readMode === 'audio' ? '#3d2e2c' : 'transparent',
-                    color: readMode === 'audio' ? '#ffffff' : themeStyles.color
-                  }}
-                >
-                  Audio
-                </button>
-                <button
-                  onClick={() => setReadMode('text')}
-                  style={{
-                    padding: '6px 14px',
-                    borderRadius: '16px',
-                    border: 'none',
-                    fontSize: '11px',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    background: readMode === 'text' ? '#3d2e2c' : 'transparent',
-                    color: readMode === 'text' ? '#ffffff' : themeStyles.color
-                  }}
-                >
-                  Text
-                </button>
-              </div>
-
-              <button 
-                className="btn btn-secondary flex-center"
-                style={{ 
-                  width: '36px', 
-                  height: '36px', 
-                  borderRadius: '50%', 
-                  padding: 0, 
-                  minHeight: '36px',
-                  background: 'transparent',
-                  color: themeStyles.color,
-                  borderColor: themeStyles.border
-                }}
-              >
-                <Settings size={18} />
-              </button>
-            </div>
-
-            {/* Book Info Panel */}
-            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-              <span style={{ fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', opacity: 0.7 }}>Chapter 1</span>
-              <h1 style={{ fontSize: '22px', fontWeight: '800', marginTop: '6px', color: themeStyles.color }}>{activeBook.title}</h1>
-              <span style={{ fontSize: '12px', opacity: 0.6, marginTop: '2px', display: 'block' }}>by {activeBook.author}</span>
-            </div>
-
-            {/* Reading View / Audio Simulation */}
-            {readMode === 'text' ? (
-              <div 
-                style={{ 
-                  fontSize: `${fontSize}px`, 
-                  lineHeight: '1.6', 
-                  textAlign: textAlign,
-                  paddingBottom: '40px' 
-                }}
-              >
-                {/* Simulated Drop-Cap letter */}
-                <span 
-                  style={{ 
-                    fontSize: `${fontSize * 2.2}px`, 
-                    fontWeight: '900', 
-                    float: 'left', 
-                    marginRight: '6px', 
-                    marginTop: '-2px',
-                    lineHeight: '1.0',
-                    color: readerTheme === 'beige' ? 'var(--accent-color)' : '#fbbf24'
-                  }}
-                >
-                  {activeBook.content[0]}
-                </span>
-                {activeBook.content.substring(1)}
-              </div>
-            ) : (
-              <div className="flex-center" style={{ flexDirection: 'column', gap: '20px', margin: '40px 0' }}>
-                {/* Illustrated Cover disk */}
-                <div 
-                  style={{ 
-                    width: '140px', 
-                    height: '140px', 
-                    borderRadius: '50%', 
-                    backgroundImage: `url(${activeBook.coverUrl})`,
-                    backgroundSize: 'cover',
-                    border: '5px solid #ffffff',
-                    boxShadow: '0 10px 25px rgba(61,46,44,0.15)',
-                    animation: isPlaying ? 'spin 12s linear infinite' : 'none'
-                  }}
-                ></div>
-
-                {/* Audio Controls */}
-                <div className="flex-center" style={{ gap: '14px', marginTop: '10px' }}>
-                  <button 
-                    onClick={() => setIsPlaying(!isPlaying)}
-                    className="btn btn-primary flex-center"
-                    style={{ width: '56px', height: '56px', borderRadius: '50%', padding: 0, background: '#fbbf24' }}
-                  >
-                    {isPlaying ? <Pause size={24} color="#3d2e2c" /> : <Play size={24} color="#3d2e2c" style={{ marginLeft: '4px' }} />}
-                  </button>
-                </div>
-                <div style={{ width: '80%', background: '#e2e8f0', height: '4px', borderRadius: '2px', position: 'relative' }}>
-                  <div style={{ width: isPlaying ? '35%' : '0%', background: '#fbbf24', height: '100%', borderRadius: '2px', transition: 'width 20s linear' }}></div>
-                </div>
-                <span style={{ fontSize: '11px', opacity: 0.6 }}>{isPlaying ? "Simulating audio playback..." : "Paused"}</span>
-              </div>
-            )}
-
-            {/* Reader Settings Tray (Only shows in text mode) */}
-            {readMode === 'text' && (
-              <div className="reader-settings" style={{ background: themeStyles.background, borderColor: themeStyles.border }}>
-                
-                {/* Brightness Adjustment */}
-                <div className="flex-row" style={{ gap: '12px', marginBottom: '14px' }}>
-                  <Sun size={14} color={themeStyles.color} style={{ opacity: 0.6 }} />
-                  <input 
-                    type="range" 
-                    min={40} 
-                    max={120} 
-                    value={brightness}
-                    onChange={(e) => setBrightness(Number(e.target.value))}
-                    style={{ margin: 0, flex: 1, background: readerTheme === 'beige' ? '#e2e8f0' : 'rgba(255,255,255,0.1)' }}
-                  />
-                  <Sun size={18} color={themeStyles.color} />
-                </div>
-
-                {/* Theme & Alignment Row */}
-                <div className="flex-row" style={{ marginBottom: '14px' }}>
-                  {/* Theme buttons */}
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <div 
-                      className={`theme-circle ${readerTheme === 'beige' ? 'active' : ''}`}
-                      onClick={() => setReaderTheme('beige')}
-                      style={{ background: '#fdf8f5', border: '1px solid #cbd5e1' }}
-                    ></div>
-                    <div 
-                      className={`theme-circle ${readerTheme === 'dark' ? 'active' : ''}`}
-                      onClick={() => setReaderTheme('dark')}
-                      style={{ background: '#3d2e2c' }}
-                    ></div>
-                    <div 
-                      className={`theme-circle ${readerTheme === 'slate' ? 'active' : ''}`}
-                      onClick={() => setReaderTheme('slate')}
-                      style={{ background: '#475569' }}
-                    ></div>
-                  </div>
-
-                  {/* Alignment selectors */}
-                  <div style={{ display: 'flex', gap: '4px', background: readerTheme === 'beige' ? '#f3eae3' : 'rgba(255,255,255,0.06)', borderRadius: '8px', padding: '2px' }}>
-                    <button 
-                      onClick={() => setTextAlign('left')}
-                      style={{ border: 'none', background: textAlign === 'left' ? '#3d2e2c' : 'transparent', color: textAlign === 'left' ? '#ffffff' : themeStyles.color, padding: '4px 8px', borderRadius: '6px', cursor: 'pointer' }}
-                    >
-                      <AlignLeft size={14} />
-                    </button>
-                    <button 
-                      onClick={() => setTextAlign('justify')}
-                      style={{ border: 'none', background: textAlign === 'justify' ? '#3d2e2c' : 'transparent', color: textAlign === 'justify' ? '#ffffff' : themeStyles.color, padding: '4px 8px', borderRadius: '6px', cursor: 'pointer' }}
-                    >
-                      <AlignJustify size={14} />
-                    </button>
-                    <button 
-                      onClick={() => setTextAlign('right')}
-                      style={{ border: 'none', background: textAlign === 'right' ? '#3d2e2c' : 'transparent', color: textAlign === 'right' ? '#ffffff' : themeStyles.color, padding: '4px 8px', borderRadius: '6px', cursor: 'pointer' }}
-                    >
-                      <AlignRight size={14} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Font Resizing Tray */}
-                <div className="flex-row">
-                  <span style={{ fontSize: '12px', fontWeight: '700', color: themeStyles.color }}>Text size</span>
-                  <div className="flex-center" style={{ gap: '12px' }}>
-                    <button 
-                      onClick={() => setFontSize(Math.max(12, fontSize - 2))}
-                      className="btn btn-secondary flex-center"
-                      style={{ width: '32px', height: '32px', minHeight: '32px', padding: 0, borderRadius: '8px', fontSize: '16px', background: 'transparent', color: themeStyles.color, borderColor: themeStyles.border }}
-                    >
-                      -
-                    </button>
-                    <span style={{ fontSize: '13px', fontWeight: '800' }}>{fontSize}px</span>
-                    <button 
-                      onClick={() => setFontSize(Math.min(26, fontSize + 2))}
-                      className="btn btn-secondary flex-center"
-                      style={{ width: '32px', height: '32px', minHeight: '32px', padding: 0, borderRadius: '8px', fontSize: '16px', background: 'transparent', color: themeStyles.color, borderColor: themeStyles.border }}
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-
-              </div>
-            )}
+            <span>My Physical Profile</span>
           </div>
         </div>
-      )}
+        <div className="profile-section-body" style={{ display: 'flex', gap: '12px', padding: '16px' }}>
+          <div style={{ flex: 1 }}>
+            <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Weight (kg)</label>
+            <input 
+              type="number" 
+              value={userStats.weight || ''}
+              onChange={(e) => handleUpdateStat('weight', e.target.value)}
+              style={{ width: '100%', padding: '10px', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--bg-main)', fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)' }}
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Height (cm)</label>
+            <input 
+              type="number" 
+              value={userStats.height || ''}
+              onChange={(e) => handleUpdateStat('height', e.target.value)}
+              style={{ width: '100%', padding: '10px', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--bg-main)', fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)' }}
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Age</label>
+            <input 
+              type="number" 
+              value={userStats.age || ''}
+              onChange={(e) => handleUpdateStat('age', e.target.value)}
+              style={{ width: '100%', padding: '10px', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--bg-main)', fontSize: '16px', fontWeight: '700', color: 'var(--text-primary)' }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* BMI Indicator */}
+      <div className="profile-section" style={{ background: 'var(--accent-color)', color: 'var(--btn-text)', borderColor: 'var(--accent-color)' }}>
+        <div style={{ padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <span style={{ fontSize: '12px', fontWeight: '700', opacity: 0.8, textTransform: 'uppercase' }}>Current BMI</span>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '4px' }}>
+              <span style={{ fontSize: '32px', fontWeight: '900' }}>{bmi > 0 ? bmi : '--'}</span>
+              <span style={{ fontSize: '14px', fontWeight: '700', background: 'var(--bg-card)', color: bmiStatus.color, padding: '2px 8px', borderRadius: '12px' }}>
+                {bmi > 0 ? bmiStatus.label : 'Enter Stats'}
+              </span>
+            </div>
+          </div>
+          <Activity size={48} style={{ opacity: 0.2 }} />
+        </div>
+      </div>
+
+      {/* Nutrition Goals & Tracking */}
+      <h2 style={{ fontSize: '15px', fontWeight: '800', marginBottom: '12px', marginTop: '24px', color: 'var(--text-primary)' }}>Today's Nutrition Log</h2>
+      
+      <div className="profile-section" style={{ padding: '20px' }}>
+        <NutritionProgress label="Protein (Muscle Growth)" current={todayLog.protein} target={targetProtein} unit="g" color="#3b82f6" />
+        <NutritionProgress label="Carbohydrates (Energy)" current={todayLog.carbs} target={targetCarbs} unit="g" color="#f59e0b" />
+        <NutritionProgress label="Fats (Hormone Health)" current={todayLog.fats} target={targetFats} unit="g" color="#ec4899" />
+        <NutritionProgress label="Iron (Blood Health)" current={todayLog.iron} target={targetIron} unit="mg" color="#8b5cf6" />
+      </div>
+
+      {/* Quick Add Buttons */}
+      <h2 style={{ fontSize: '15px', fontWeight: '800', marginBottom: '12px', marginTop: '24px', color: 'var(--text-primary)' }}>Quick Log</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <button 
+          className="btn flex-center" 
+          style={{ background: 'var(--bg-card)', color: '#3b82f6', border: '1px solid #3b82f6', gap: '6px' }}
+          onClick={() => handleLogNutrition('protein', 20)}
+        >
+          <Plus size={16} /> 20g Protein
+        </button>
+        <button 
+          className="btn flex-center" 
+          style={{ background: 'var(--bg-card)', color: '#f59e0b', border: '1px solid #f59e0b', gap: '6px' }}
+          onClick={() => handleLogNutrition('carbs', 30)}
+        >
+          <Plus size={16} /> 30g Carbs
+        </button>
+        <button 
+          className="btn flex-center" 
+          style={{ background: 'var(--bg-card)', color: '#ec4899', border: '1px solid #ec4899', gap: '6px' }}
+          onClick={() => handleLogNutrition('fats', 10)}
+        >
+          <Plus size={16} /> 10g Fats
+        </button>
+        <button 
+          className="btn flex-center" 
+          style={{ background: 'var(--bg-card)', color: '#8b5cf6', border: '1px solid #8b5cf6', gap: '6px' }}
+          onClick={() => handleLogNutrition('iron', 5)}
+        >
+          <Plus size={16} /> 5mg Iron
+        </button>
+      </div>
+
+      <div className="profile-section" style={{ marginTop: '24px' }}>
+        <div style={{ padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Zap size={16} color="var(--accent-color)" />
+              <span style={{ fontSize: '14px', fontWeight: '800' }}>Daily Steps</span>
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>{todayLog.steps} / {targetSteps} steps</div>
+          </div>
+          
+          {trackingStatus === 'tracking' ? (
+            <span style={{ fontSize: '11px', fontWeight: '700', color: '#10b981', background: '#ecfdf5', padding: '4px 10px', borderRadius: '12px', border: '1px solid #10b981' }}>
+              ● Live Sync
+            </span>
+          ) : (
+            <button 
+              className="btn btn-primary flex-center"
+              onClick={requestPedometerPermission}
+              style={{ padding: '8px 16px', fontSize: '11px', fontWeight: '800' }}
+            >
+              Auto-Track Steps
+            </button>
+          )}
+        </div>
+      </div>
+
     </div>
   );
 };

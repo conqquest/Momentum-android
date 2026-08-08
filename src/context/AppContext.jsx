@@ -22,60 +22,7 @@ const DEFAULT_HABITS = [
   { id: 'sleep', name: '7+ Hours Sleep', category: 'Health' }
 ];
 
-// Built-in Mindfulness Reads / E-books (from Kidory layout)
-export const MINDFUL_BOOKS = [
-  {
-    id: 'mountain-bear',
-    title: 'The Boy and The Mountain Bear',
-    author: 'Paperpillar Studio',
-    category: 'Fantasy',
-    episodes: '8 Episodes',
-    readCount: '1.2M',
-    lovedCount: '2K',
-    savedCount: '22',
-    description: 'Read a joyous adventure between a boy and a mountain bear deep in a rural village!',
-    coverUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=mountain-bear',
-    content: `Long time ago, in a quiet village at foot of a tall mountain, there lived a cheerful boy who loved to wander and dream of adventures. He often gazed at the towering peak, wondering what secrets it held beyond the clouds.
-
-One sunny morning, while exploring the forest, the boy heard a deep rumble. From behind the tall pines stepped a great Mountain Bear, its fur shining like snow and eyes glowing with kindness.
-
-The boy's heart skipped, but instead of running away, he approached with an open hand. The bear nudged him gently, and from that day, they explored the mountain paths together, discovering secret valleys and ancient waterfalls.`
-  },
-  {
-    id: 'little-hippo',
-    title: 'My Little Hippo',
-    author: 'Agus S',
-    category: 'Fiction',
-    episodes: '8 Episodes',
-    readCount: '340K',
-    lovedCount: '12K',
-    savedCount: '150',
-    description: 'Follow a small hippopotamus finding a way home through deep rivers.',
-    coverUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=hippo',
-    content: `In a cozy marsh where wild lotuses grew, a little hippo named Pip was playing hide-and-seek. Pip was very small, and sometimes he got lost in the high reeds. Today, he wanted to explore the great river path.
-
-He swam past yellow fish and laughing frogs, feeling very brave. But as the sun began to dip, he realized he didn't know the way back!
-
-In the twilight, he saw a glowing firefly. "Follow me," buzzed the firefly, and Pip swam happily home.`
-  },
-  {
-    id: 'forest-bird',
-    title: 'Bird In The Forest',
-    author: 'Budi O',
-    category: 'Mystery',
-    episodes: '6 Episodes',
-    readCount: '120K',
-    lovedCount: '1K',
-    savedCount: '80',
-    description: 'Discover why the bird sings only when the moon is full.',
-    coverUrl: 'https://api.dicebear.com/7.x/identicon/svg?seed=bird',
-    content: `High in the canopy of the Whispering Woods, a silver bird sat in silence. All the forest animals wondered why the bird never chirped.
-
-Then, one night, the moon rose large and golden. The silver bird spread its wings and sang a melody so sweet that the wind itself stopped to listen.
-
-The secret of the song was simple: the bird only sang when it could reflect the full light of the moon, teaching the forest that sometimes, we need time to reflect and find our own voice.`
-  }
-];
+// Replaced MINDFUL_BOOKS with Nutrition Tracker data
 
 export const AppProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -110,6 +57,16 @@ export const AppProvider = ({ children }) => {
     return local ? JSON.parse(local) : {};
   });
 
+  const [userStats, setUserStats] = useState(() => {
+    const local = localStorage.getItem('profile_stats');
+    return local ? JSON.parse(local) : { weight: 70, height: 170, age: 25 };
+  });
+
+  const [nutritionLogs, setNutritionLogs] = useState(() => {
+    const local = localStorage.getItem('nutrition_logs');
+    return local ? JSON.parse(local) : {};
+  });
+
   // Subscribe to auth updates
   useEffect(() => {
     const unsubscribe = subscribeToAuthChanges((currentUser) => {
@@ -139,6 +96,8 @@ export const AppProvider = ({ children }) => {
             if (data.gender) setGender(data.gender);
             if (data.themeColor) setThemeColor(data.themeColor);
             if (data.habits) setHabits(data.habits);
+            if (data.userStats) setUserStats(data.userStats);
+            if (data.nutritionLogs) setNutritionLogs(data.nutritionLogs);
             console.log('Mindful log fetched from Firestore');
           }
         } catch (err) {
@@ -155,19 +114,16 @@ export const AppProvider = ({ children }) => {
   // Save changes locally
   useEffect(() => {
     localStorage.setItem('profile_name', displayName);
-  }, [displayName]);
-
-  useEffect(() => {
     localStorage.setItem('profile_gender', gender);
-  }, [gender]);
-
-  useEffect(() => {
-    localStorage.setItem('mindful_habits', JSON.stringify(habits));
-  }, [habits]);
+    localStorage.setItem('profile_theme', themeColor);
+    localStorage.setItem('profile_stats', JSON.stringify(userStats));
+  }, [displayName, gender, themeColor, userStats]);
 
   useEffect(() => {
     localStorage.setItem('mindful_logs', JSON.stringify(logs));
-  }, [logs]);
+    localStorage.setItem('mindful_habits', JSON.stringify(habits));
+    localStorage.setItem('nutrition_logs', JSON.stringify(nutritionLogs));
+  }, [logs, habits, nutritionLogs]);
 
   // Sync today's habit completion status to SharedPreferences for native AppWidget access
   useEffect(() => {
@@ -215,6 +171,8 @@ export const AppProvider = ({ children }) => {
           gender,
           themeColor,
           habits,
+          userStats,
+          nutritionLogs,
           lastUpdated: new Date().toISOString()
         }, { merge: true });
         console.log('Mindful logs synced to Firestore.');
@@ -226,7 +184,7 @@ export const AppProvider = ({ children }) => {
     }, 1500);
 
     return () => clearTimeout(timer);
-  }, [logs, displayName, gender, themeColor, habits, user, loading]);
+  }, [logs, displayName, gender, themeColor, habits, userStats, nutritionLogs, user, loading]);
 
   // Update a daily entry log
   const saveDailyEntry = (date, entryObj) => {
@@ -319,6 +277,10 @@ export const AppProvider = ({ children }) => {
         setThemeColor,
         habits,
         setHabits,
+        userStats,
+        setUserStats,
+        nutritionLogs,
+        setNutritionLogs,
         logs,
         toggleHabit,
         addHabit,
