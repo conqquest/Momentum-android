@@ -1,6 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { subscribeToAuthChanges, isRealFirebase, db } from '../firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { subscribeToAuthChanges, isRealFirebase } from '../firebase';
 import { Preferences } from '@capacitor/preferences';
 
 export const AppContext = createContext();
@@ -13,7 +12,6 @@ export const getTodayDateString = () => {
   return `${year}-${month}-${day}`;
 };
 
-// Default habits configuration (square checkbox targets)
 const DEFAULT_HABITS = [
   { id: 'workout', name: 'Morning Workout', category: 'Health' },
   { id: 'water', name: 'Drink 8 Cups Water', category: 'Health' },
@@ -22,7 +20,7 @@ const DEFAULT_HABITS = [
   { id: 'sleep', name: '7+ Hours Sleep', category: 'Health' }
 ];
 
-// Replaced MINDFUL_BOOKS with Nutrition Tracker data
+const BACKEND_URL = 'https://momentum-backend-9fuq.onrender.com';
 
 export const AppProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -32,7 +30,6 @@ export const AppProvider = ({ children }) => {
   const [selectedDate, setSelectedDate] = useState(getTodayDateString());
   const [showJournalModal, setShowJournalModal] = useState(false);
   
-  // Custom display profile settings
   const [displayName, setDisplayName] = useState(() => {
     return localStorage.getItem('profile_name') || '';
   });
@@ -45,13 +42,11 @@ export const AppProvider = ({ children }) => {
     return localStorage.getItem('profile_theme') || 'default';
   });
 
-  // Dynamic habits configurations
   const [habits, setHabits] = useState(() => {
     const local = localStorage.getItem('mindful_habits');
     return local ? JSON.parse(local) : DEFAULT_HABITS;
   });
 
-  // Daily log state: { [date]: { weather, moodDetail, momentText, morningReflect, eveningReflect, emotions, habitsChecked } }
   const [logs, setLogs] = useState(() => {
     const local = localStorage.getItem('mindful_logs');
     return local ? JSON.parse(local) : {};
@@ -67,6 +62,32 @@ export const AppProvider = ({ children }) => {
     return local ? JSON.parse(local) : {};
   });
 
+  // API Request helper with Bearer Token auth using user.uid as token
+  const apiRequest = async (endpoint, method = 'GET', body = null) => {
+    if (!user) return null;
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${user.uid}`
+    };
+    const options = {
+      method,
+      headers
+    };
+    if (body) {
+      options.body = JSON.stringify(body);
+    }
+    try {
+      const res = await fetch(`${BACKEND_URL}${endpoint}`, options);
+      if (!res.ok) {
+        throw new Error(`API error: ${res.status} ${res.statusText}`);
+      }
+      return await res.json();
+    } catch (err) {
+      console.error(`API request to ${endpoint} failed:`, err);
+      throw err;
+    }
+  };
+
   // Subscribe to auth updates
   useEffect(() => {
     const unsubscribe = subscribeToAuthChanges((currentUser) => {
@@ -79,32 +100,104 @@ export const AppProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  // Fetch data from Firestore if active
+  // Fetch and Sync data from Backend when user is logged in
   useEffect(() => {
-    if (loading) return;
+    if (loading || !user) return;
 
     const fetchUserData = async () => {
-      if (user && isRealFirebase && db) {
-        setSyncing(true);
-        try {
-          const userDocRef = doc(db, 'users', user.uid, 'data', 'mindful_journal');
-          const docSnap = await getDoc(userDocRef);
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            if (data.logs) setLogs(data.logs);
-            if (data.displayName) setDisplayName(data.displayName);
-            if (data.gender) setGender(data.gender);
-            if (data.themeColor) setThemeColor(data.themeColor);
-            if (data.habits) setHabits(data.habits);
-            if (data.userStats) setUserStats(data.userStats);
-            if (data.nutritionLogs) setNutritionLogs(data.nutritionLogs);
-            console.log('Mindful log fetched from Firestore');
+      setSyncing(true);
+      try {
+        // 1. Sync User Profile details on login
+        await apiRequest('/api/user/sync', 'POST', {
+          email: user.email,
+          displayName: displayName || user.displayName,
+          gender,
+          themeColor,
+          weight: userStats.weight,
+          height: userStats.height,
+          age: userStats.age
+        });
+
+        // 2. Fetch User & Habits
+        const userData = await apiRequest('/api/user', 'GET');
+        if (userData) {
+          if (userData.displayName) setDisplayName(userData.displayName);
+          if (userData.gender) setGender(userData.gender);
+          if (userData.themeColor) setThemeColor(userData.themeColor);
+          if (userData.weight || userData.height || userData.age) {
+            setUserStats({
+              weight: userData.weight || 70,
+              height: userData.height || 170,
+              age: userData.age || 25
+            });
           }
-        } catch (err) {
-          console.warn('Firestore fetch failed. Falling back to local cache:', err);
-        } finally {
-          setSyncing(false);
+          if (userData.habits && userData.habits.length > 0) {
+            setHabits(userData.habits);
+          } else {
+            // New user - seed default habits into backend database
+            for (const h of DEFAULT_HABITS) {
+              await apiRequest('/api/habits', 'POST', { name: h.name, category: h.category });
+            }
+            const refreshed = await apiRequest('/api/user', 'GET');
+            if (refreshed && refreshed.habits) setHabits(refreshed.habits);
+          }
         }
+
+        // 3. Fetch History of Logs
+        const history = await apiRequest('/api/logs/history', 'GET');
+        if (history && Array.isArray(history)) {
+          const parsedLogs = {};
+          const parsedNutrition = {};
+
+          history.forEach(log => {
+            let habitsCheckedObj = {};
+            try {
+              const checkedArray = JSON.parse(log.habitsChecked || '[]');
+              if (Array.isArray(checkedArray)) {
+                checkedArray.forEach(id => {
+                  habitsCheckedObj[id] = true;
+                });
+              } else if (typeof checkedArray === 'object' && checkedArray !== null) {
+                habitsCheckedObj = checkedArray;
+              }
+            } catch (e) {
+              console.error("Failed to parse habitsChecked:", e);
+            }
+
+            let emotionsObj = { happy: 25, sad: 25, calm: 25, anxious: 25 };
+            try {
+              if (log.emotions) {
+                emotionsObj = JSON.parse(log.emotions);
+              }
+            } catch (e) {
+              console.error("Failed to parse emotions:", e);
+            }
+
+            parsedLogs[log.date] = {
+              morningReflect: log.morningReflect || '',
+              eveningReflect: log.eveningReflect || '',
+              momentText: log.momentText || '',
+              moodDetail: log.moodDetail || 'Calm',
+              habitsChecked: habitsCheckedObj,
+              emotions: emotionsObj
+            };
+
+            parsedNutrition[log.date] = {
+              protein: log.protein || 0,
+              carbs: log.carbs || 0,
+              fats: log.fats || 0,
+              iron: log.iron || 0,
+              steps: log.steps || 0
+            };
+          });
+
+          setLogs(parsedLogs);
+          setNutritionLogs(parsedNutrition);
+        }
+      } catch (err) {
+        console.warn('Backend fetch failed. Using local storage cache as fallback.', err);
+      } finally {
+        setSyncing(false);
       }
     };
 
@@ -135,7 +228,6 @@ export const AppProvider = ({ children }) => {
         const completedCount = habits.filter(h => checked[h.id] === true).length;
         const totalCount = habits.length;
 
-        // Save keys using Preferences so it registers in CapacitorStorage shared preference
         await Preferences.set({
           key: 'widget_habits_completed',
           value: String(completedCount)
@@ -144,8 +236,6 @@ export const AppProvider = ({ children }) => {
           key: 'widget_habits_total',
           value: String(totalCount)
         });
-        
-        // Also save today's date string to check freshness
         await Preferences.set({
           key: 'widget_last_update_date',
           value: todayStr
@@ -157,34 +247,72 @@ export const AppProvider = ({ children }) => {
     syncWidgetData();
   }, [logs, habits]);
 
-  // Sync to Firestore
+  // Sync Profile updates to backend
   useEffect(() => {
-    if (loading || !user || !isRealFirebase || !db) return;
+    if (loading || !user) return;
 
     const timer = setTimeout(async () => {
       setSyncing(true);
       try {
-        const userDocRef = doc(db, 'users', user.uid, 'data', 'mindful_journal');
-        await setDoc(userDocRef, {
-          logs,
+        await apiRequest('/api/user/sync', 'POST', {
+          email: user.email,
           displayName,
           gender,
           themeColor,
-          habits,
-          userStats,
-          nutritionLogs,
-          lastUpdated: new Date().toISOString()
-        }, { merge: true });
-        console.log('Mindful logs synced to Firestore.');
+          weight: userStats.weight,
+          height: userStats.height,
+          age: userStats.age
+        });
       } catch (err) {
-        console.error('Mindful sync failed:', err);
+        console.error("Profile sync to backend failed:", err);
+      } finally {
+        setSyncing(false);
+      }
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [displayName, gender, themeColor, userStats, user, loading]);
+
+  // Sync Logs & Nutrition to backend (Debounced)
+  useEffect(() => {
+    if (loading || !user) return;
+
+    const timer = setTimeout(async () => {
+      setSyncing(true);
+      try {
+        const datesToSync = Array.from(new Set([getTodayDateString(), selectedDate]));
+        
+        for (const date of datesToSync) {
+          const currentLog = logs[date] || {};
+          const currentNutrition = nutritionLogs[date] || {};
+          
+          const payload = {
+            date,
+            morningReflect: currentLog.morningReflect || null,
+            eveningReflect: currentLog.eveningReflect || null,
+            momentText: currentLog.momentText || null,
+            moodDetail: currentLog.moodDetail || null,
+            emotions: currentLog.emotions || null,
+            protein: currentNutrition.protein || 0,
+            carbs: currentNutrition.carbs || 0,
+            fats: currentNutrition.fats || 0,
+            iron: currentNutrition.iron || 0,
+            steps: currentNutrition.steps || 0,
+            habitsChecked: Object.keys(currentLog.habitsChecked || {}).filter(k => currentLog.habitsChecked[k] === true)
+          };
+          
+          await apiRequest('/api/logs/daily', 'POST', payload);
+        }
+        console.log("Logs synced to Render PostgreSQL backend successfully.");
+      } catch (err) {
+        console.error("Failed to sync daily logs to backend:", err);
       } finally {
         setSyncing(false);
       }
     }, 1500);
 
     return () => clearTimeout(timer);
-  }, [logs, displayName, gender, themeColor, habits, userStats, nutritionLogs, user, loading]);
+  }, [logs, nutritionLogs, user, loading, selectedDate]);
 
   // Update a daily entry log
   const saveDailyEntry = (date, entryObj) => {
@@ -197,7 +325,7 @@ export const AppProvider = ({ children }) => {
     }));
   };
 
-  // Toggle habit checkbox (square checkbox) status
+  // Toggle habit checkbox
   const toggleHabit = (date, habitId) => {
     setLogs((prev) => {
       const dateLog = prev[date] || {
@@ -224,14 +352,30 @@ export const AppProvider = ({ children }) => {
     });
   };
 
-  // Add custom habits
-  const addHabit = (habit) => {
-    setHabits((prev) => [...prev, habit]);
+  // Add habit
+  const addHabit = async (habit) => {
+    try {
+      const savedHabit = await apiRequest('/api/habits', 'POST', {
+        name: habit.name,
+        category: habit.category
+      });
+      if (savedHabit) {
+        setHabits((prev) => [...prev, savedHabit]);
+      }
+    } catch (err) {
+      console.error("Failed to add habit to backend:", err);
+      setHabits((prev) => [...prev, habit]);
+    }
   };
 
-  // Delete habit
-  const removeHabit = (id) => {
+  // Remove habit
+  const removeHabit = async (id) => {
     setHabits((prev) => prev.filter((h) => h.id !== id));
+    try {
+      await apiRequest(`/api/habits/${id}`, 'DELETE');
+    } catch (err) {
+      console.error("Failed to delete habit from backend:", err);
+    }
   };
 
   // Reset data
@@ -241,11 +385,15 @@ export const AppProvider = ({ children }) => {
     localStorage.removeItem('profile_name');
     localStorage.removeItem('profile_gender');
     localStorage.removeItem('profile_theme');
+    localStorage.removeItem('profile_stats');
+    localStorage.removeItem('nutrition_logs');
     setLogs({});
     setHabits(DEFAULT_HABITS);
     setDisplayName('');
     setGender('');
     setThemeColor('default');
+    setUserStats({ weight: 70, height: 170, age: 25 });
+    setNutritionLogs({});
   };
 
   const saveFirebaseConfig = (config) => {
