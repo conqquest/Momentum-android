@@ -7,6 +7,7 @@ import ExploreView from './components/ExploreView';
 import JourneyView from './components/JourneyView';
 import SettingsView from './components/SettingsView';
 import JournalModal from './components/JournalModal';
+import LoginScreen from './components/LoginScreen';
 import { RefreshCw, Heart } from 'lucide-react';
 
 const SplashOverlay = ({ exit }) => {
@@ -113,7 +114,7 @@ const OnboardingForm = () => {
 };
 
 const MainAppContent = () => {
-  const { activeTab, loading, displayName, gender, themeColor } = useContext(AppContext);
+  const { activeTab, loading, displayName, gender, themeColor, user, isGuest } = useContext(AppContext);
   const [showSplash, setShowSplash] = useState(true);
   const [exitSplash, setExitSplash] = useState(false);
 
@@ -156,11 +157,11 @@ const MainAppContent = () => {
     );
   }
 
-  // Render Splash overlay
-  const renderSplash = showSplash;
+  // Render LoginScreen if not authenticated and not in guest mode
+  const renderLogin = !showSplash && !user && !isGuest;
 
-  // Render Onboarding form if profile displays or genders are unconfigured
-  const renderOnboarding = !showSplash && (!displayName || !gender);
+  // Render Onboarding form if profile displays or genders are unconfigured (only if guest or logged in)
+  const renderOnboarding = !showSplash && !renderLogin && (!displayName || !gender);
 
   // Screen routing matching selected activeTab
   const renderTabContent = () => {
@@ -180,10 +181,11 @@ const MainAppContent = () => {
 
   return (
     <>
-      {renderSplash && <SplashOverlay exit={exitSplash} />}
+      {showSplash && <SplashOverlay exit={exitSplash} />}
+      {renderLogin && <LoginScreen />}
       {renderOnboarding && <OnboardingForm />}
 
-      {!renderOnboarding && (
+      {!showSplash && !renderLogin && !renderOnboarding && (
         <>
           <Header />
           <main style={{ flex: 1, overflowY: 'auto', paddingBottom: '20px' }}>

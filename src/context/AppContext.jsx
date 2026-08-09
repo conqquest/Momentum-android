@@ -30,6 +30,10 @@ export const AppProvider = ({ children }) => {
   const [selectedDate, setSelectedDate] = useState(getTodayDateString());
   const [showJournalModal, setShowJournalModal] = useState(false);
   
+  const [isGuest, setIsGuest] = useState(() => {
+    return localStorage.getItem('auth_mode') === 'guest';
+  });
+  
   const [displayName, setDisplayName] = useState(() => {
     return localStorage.getItem('profile_name') || '';
   });
@@ -102,7 +106,7 @@ export const AppProvider = ({ children }) => {
 
   // Fetch and Sync data from Backend when user is logged in
   useEffect(() => {
-    if (loading || !user) return;
+    if (loading || !user || isGuest) return;
 
     const fetchUserData = async () => {
       setSyncing(true);
@@ -249,7 +253,7 @@ export const AppProvider = ({ children }) => {
 
   // Sync Profile updates to backend
   useEffect(() => {
-    if (loading || !user) return;
+    if (loading || !user || isGuest) return;
 
     const timer = setTimeout(async () => {
       setSyncing(true);
@@ -275,7 +279,7 @@ export const AppProvider = ({ children }) => {
 
   // Sync Logs & Nutrition to backend (Debounced)
   useEffect(() => {
-    if (loading || !user) return;
+    if (loading || !user || isGuest) return;
 
     const timer = setTimeout(async () => {
       setSyncing(true);
@@ -354,6 +358,10 @@ export const AppProvider = ({ children }) => {
 
   // Add habit
   const addHabit = async (habit) => {
+    if (isGuest) {
+      setHabits((prev) => [...prev, habit]);
+      return;
+    }
     try {
       const savedHabit = await apiRequest('/api/habits', 'POST', {
         name: habit.name,
@@ -371,6 +379,7 @@ export const AppProvider = ({ children }) => {
   // Remove habit
   const removeHabit = async (id) => {
     setHabits((prev) => prev.filter((h) => h.id !== id));
+    if (isGuest) return;
     try {
       await apiRequest(`/api/habits/${id}`, 'DELETE');
     } catch (err) {
@@ -387,6 +396,7 @@ export const AppProvider = ({ children }) => {
     localStorage.removeItem('profile_theme');
     localStorage.removeItem('profile_stats');
     localStorage.removeItem('nutrition_logs');
+    localStorage.removeItem('auth_mode');
     setLogs({});
     setHabits(DEFAULT_HABITS);
     setDisplayName('');
@@ -394,6 +404,7 @@ export const AppProvider = ({ children }) => {
     setThemeColor('default');
     setUserStats({ weight: 70, height: 170, age: 25 });
     setNutritionLogs({});
+    setIsGuest(false);
   };
 
   const saveFirebaseConfig = (config) => {
@@ -436,7 +447,9 @@ export const AppProvider = ({ children }) => {
         saveDailyEntry,
         clearAllData,
         saveFirebaseConfig,
-        isRealFirebase
+        isRealFirebase,
+        isGuest,
+        setIsGuest
       }}
     >
       {children}
