@@ -174,6 +174,12 @@ const SettingsView = () => {
   const [newHabitName, setNewHabitName] = useState('');
   const [newHabitCat, setNewHabitCat] = useState('Health');
   const [isSigningIn, setIsSigningIn] = useState(false);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+
+  // Avatar: stored as data-URL (custom photo) or preset key
+  const [selectedAvatar, setSelectedAvatar] = useState(() =>
+    localStorage.getItem('profile_avatar') || ''
+  );
 
   const [apiKey, setApiKey] = useState('');
   const [authDomain, setAuthDomain] = useState('');
@@ -246,9 +252,88 @@ const SettingsView = () => {
     return { totalActiveDays, currentStreak, bestStreak, completionRate };
   }, [logs, habits]);
 
-  /* ─── Avatar ─── */
-  const avatarSeed = gender === 'Female' ? 'Aria' : (gender === 'Non-Binary' ? 'Riley' : 'Felix');
-  const avatarUrl = user?.photoURL || `https://api.dicebear.com/7.x/adventurer/svg?seed=${displayName || 'User'}-${avatarSeed}`;
+  /* ─── Avatar Presets by Gender ─── */
+  const AVATAR_PRESETS = {
+    Female: [
+      { key: 'f1', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Aria&backgroundColor=ffd5dc' },
+      { key: 'f2', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Luna&backgroundColor=c0e8ff' },
+      { key: 'f3', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Zoe&backgroundColor=d4edda' },
+      { key: 'f4', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Maya&backgroundColor=fff3cd' },
+      { key: 'f5', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Nova&backgroundColor=e2d9f3' },
+      { key: 'f6', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Isla&backgroundColor=fde8d8' },
+      { key: 'f7', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Sage&backgroundColor=d1f0f0' },
+      { key: 'f8', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Aurora&backgroundColor=fce4ec' },
+      { key: 'f9', url: 'https://api.dicebear.com/7.x/personas/svg?seed=Sofia' },
+      { key: 'f10', url: 'https://api.dicebear.com/7.x/personas/svg?seed=Mia' },
+    ],
+    Male: [
+      { key: 'm1', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Felix&backgroundColor=dce8ff' },
+      { key: 'm2', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Liam&backgroundColor=d4f1e4' },
+      { key: 'm3', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Kai&backgroundColor=fff0cc' },
+      { key: 'm4', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Owen&backgroundColor=fde0d0' },
+      { key: 'm5', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Ryder&backgroundColor=e8e0f8' },
+      { key: 'm6', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Axel&backgroundColor=d0f0ff' },
+      { key: 'm7', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Zane&backgroundColor=e0ffe0' },
+      { key: 'm8', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Dante&backgroundColor=ffecd2' },
+      { key: 'm9', url: 'https://api.dicebear.com/7.x/personas/svg?seed=Noah' },
+      { key: 'm10', url: 'https://api.dicebear.com/7.x/personas/svg?seed=Ethan' },
+    ],
+    'Non-Binary': [
+      { key: 'nb1', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Riley&backgroundColor=f3e5f5' },
+      { key: 'nb2', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Avery&backgroundColor=e0f7fa' },
+      { key: 'nb3', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Quinn&backgroundColor=fff9c4' },
+      { key: 'nb4', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Sage&backgroundColor=fce4ec' },
+      { key: 'nb5', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=River&backgroundColor=e8f5e9' },
+      { key: 'nb6', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Skye&backgroundColor=e3f2fd' },
+      { key: 'nb7', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Nico&backgroundColor=fff3e0' },
+      { key: 'nb8', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Pax&backgroundColor=ede7f6' },
+      { key: 'nb9', url: 'https://api.dicebear.com/7.x/personas/svg?seed=Blake' },
+      { key: 'nb10', url: 'https://api.dicebear.com/7.x/personas/svg?seed=Jordan' },
+    ],
+  };
+
+  const currentPresets = AVATAR_PRESETS[gender] || AVATAR_PRESETS['Male'];
+
+  // Derive the displayed avatar URL
+  const avatarUrl = (() => {
+    if (selectedAvatar && selectedAvatar.startsWith('data:')) {
+      // Custom uploaded photo
+      return selectedAvatar;
+    }
+    if (selectedAvatar) {
+      // It's a preset key – find URL
+      const all = [...(AVATAR_PRESETS.Female || []), ...(AVATAR_PRESETS.Male || []), ...(AVATAR_PRESETS['Non-Binary'] || [])];
+      const found = all.find(a => a.key === selectedAvatar);
+      if (found) return found.url;
+    }
+    // Default: Google photo or generated avatar
+    if (user?.photoURL) return user.photoURL;
+    const seed = gender === 'Female' ? 'Aria' : gender === 'Non-Binary' ? 'Riley' : 'Felix';
+    return `https://api.dicebear.com/7.x/adventurer/svg?seed=${displayName || 'User'}-${seed}`;
+  })();
+
+  const handleSelectAvatar = (key) => {
+    setSelectedAvatar(key);
+    localStorage.setItem('profile_avatar', key);
+    setShowAvatarPicker(false);
+  };
+
+  const handleCustomPhoto = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Image must be under 2 MB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target.result;
+      setSelectedAvatar(dataUrl);
+      localStorage.setItem('profile_avatar', dataUrl);
+      setShowAvatarPicker(false);
+    };
+    reader.readAsDataURL(file);
+  };
 
   /* ─── Handlers ─── */
   const handleSaveProfile = (e) => {
@@ -360,8 +445,33 @@ const SettingsView = () => {
       <div className="profile-hero">
         <div className="profile-hero-bg" />
         <div className="profile-avatar-section">
-          <div className="profile-avatar-ring">
+          <div
+            className="profile-avatar-ring"
+            onClick={() => setShowAvatarPicker(true)}
+            style={{ cursor: 'pointer', position: 'relative' }}
+            title="Change avatar"
+          >
             <img src={avatarUrl} alt="Profile" className="profile-hero-avatar" />
+            {/* Camera overlay badge */}
+            <div style={{
+              position: 'absolute',
+              bottom: 2,
+              right: 2,
+              width: 26,
+              height: 26,
+              borderRadius: '50%',
+              background: 'var(--accent-color)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+              border: '2px solid var(--bg-card)',
+            }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--btn-text)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+            </div>
           </div>
           <h2 className="profile-hero-name">{displayName}</h2>
           <div className="profile-hero-badge">
@@ -530,6 +640,126 @@ const SettingsView = () => {
           </button>
         </form>
       </CollapsibleSection>
+
+      {/* ═══ Avatar Picker Modal ═══ */}
+      {showAvatarPicker && (
+        <div
+          onClick={() => setShowAvatarPicker(false)}
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 4000,
+            display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              width: '100%',
+              maxWidth: '480px',
+              background: 'var(--bg-card)',
+              borderRadius: '28px 28px 0 0',
+              padding: '24px 20px 40px',
+              border: '1px solid var(--border-color)',
+              animation: 'slideUpFade 0.25s ease',
+            }}
+          >
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ fontWeight: '800', fontSize: '17px', color: 'var(--text-primary)' }}>Choose Avatar</h3>
+              <button
+                onClick={() => setShowAvatarPicker(false)}
+                style={{ background: 'var(--accent-light)', border: 'none', borderRadius: '50%', width: 32, height: 32, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+
+            {/* Gender tab label */}
+            <p style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              {gender || 'All'} Avatars
+            </p>
+
+            {/* Avatar Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px', marginBottom: '20px' }}>
+              {currentPresets.map(preset => (
+                <button
+                  key={preset.key}
+                  onClick={() => handleSelectAvatar(preset.key)}
+                  style={{
+                    width: '100%',
+                    aspectRatio: '1',
+                    borderRadius: '16px',
+                    border: selectedAvatar === preset.key ? '3px solid var(--accent-color)' : '2px solid var(--border-color)',
+                    background: 'var(--bg-main)',
+                    cursor: 'pointer',
+                    padding: 0,
+                    overflow: 'hidden',
+                    transition: 'all 0.15s ease',
+                    boxShadow: selectedAvatar === preset.key ? '0 0 0 2px var(--accent-color)' : 'none',
+                  }}
+                >
+                  <img
+                    src={preset.url}
+                    alt="avatar"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    loading="lazy"
+                  />
+                </button>
+              ))}
+            </div>
+
+            {/* Divider */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '16px 0' }}>
+              <div style={{ flex: 1, height: 1, background: 'var(--border-color)' }} />
+              <span style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-muted)' }}>OR</span>
+              <div style={{ flex: 1, height: 1, background: 'var(--border-color)' }} />
+            </div>
+
+            {/* Upload Custom Photo */}
+            <label
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                width: '100%',
+                padding: '14px',
+                borderRadius: '16px',
+                border: '1.5px dashed var(--border-color)',
+                background: 'var(--bg-main)',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '700',
+                color: 'var(--text-primary)',
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+              Upload Your Photo
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleCustomPhoto}
+                style={{ display: 'none' }}
+              />
+            </label>
+
+            {/* Remove custom photo if set */}
+            {selectedAvatar && (
+              <button
+                onClick={() => { setSelectedAvatar(''); localStorage.removeItem('profile_avatar'); setShowAvatarPicker(false); }}
+                style={{ marginTop: 10, background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline', width: '100%' }}
+              >
+                Reset to default avatar
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ═══ Manage Habits ═══ */}
       <CollapsibleSection icon={Target} title="Manage Habits" defaultOpen={false}>
