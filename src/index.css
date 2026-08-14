@@ -819,12 +819,14 @@ textarea:focus {
   align-items: center;
   justify-content: center;
   z-index: 3000;
-  transition: transform 0.65s cubic-bezier(0.85, 0, 0.15, 1);
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: auto;
+  transform-origin: center center;
 }
 
 .splash-container.exit {
-  transform: translateY(-100%);
+  opacity: 0;
+  transform: scale(0.96);
   pointer-events: none;
 }
 
@@ -895,6 +897,11 @@ textarea:focus {
 @keyframes slideUpFade {
   0% { transform: translateY(12px); opacity: 0; }
   100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 

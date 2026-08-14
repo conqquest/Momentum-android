@@ -1,3 +1,5 @@
+import React, { useContext, useState, useMemo } from 'react';
+import { AppContext, getTodayDateString } from '../context/AppContext';
 import { getSavedFirebaseConfig, loginWithGoogle, logout } from '../firebase';
 import { 
   Database, ShieldAlert, Key, Download, Upload, RefreshCw, 

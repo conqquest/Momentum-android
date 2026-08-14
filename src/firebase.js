@@ -49,6 +49,15 @@ const mockUser = {
 
 export { isRealFirebase, db };
 
+// Holds registered auth state listeners for mock mode
+let mockAuthListeners = [];
+let mockCurrentUser = null;
+
+const notifyMockListeners = (user) => {
+  mockCurrentUser = user;
+  mockAuthListeners.forEach(cb => cb(user));
+};
+
 export const loginWithGoogle = async () => {
   if (isRealFirebase && auth && googleProvider) {
     try {
@@ -62,6 +71,8 @@ export const loginWithGoogle = async () => {
     // Simulate API delay
     await new Promise((res) => setTimeout(res, 800));
     localStorage.setItem('demo_logged_in', 'true');
+    // Notify all subscribers about the new mock user
+    notifyMockListeners(mockUser);
     return mockUser;
   }
 };
@@ -71,6 +82,7 @@ export const logout = async () => {
     await signOut(auth);
   } else {
     localStorage.removeItem('demo_logged_in');
+    notifyMockListeners(null);
   }
 };
 
@@ -78,16 +90,16 @@ export const subscribeToAuthChanges = (callback) => {
   if (isRealFirebase && auth) {
     return onAuthStateChanged(auth, callback);
   } else {
-    // Mock subscription
-    const checkDemoAuth = () => {
-      const isLoggedIn = localStorage.getItem('demo_logged_in') === 'true';
-      callback(isLoggedIn ? mockUser : null);
+    // Register this listener
+    mockAuthListeners.push(callback);
+
+    // Fire immediately with the current state
+    const isLoggedIn = localStorage.getItem('demo_logged_in') === 'true';
+    setTimeout(() => callback(isLoggedIn ? mockUser : null), 100);
+
+    // Return an unsubscribe function
+    return () => {
+      mockAuthListeners = mockAuthListeners.filter(cb => cb !== callback);
     };
-    
-    // Check initially
-    setTimeout(checkDemoAuth, 100);
-    
-    // Return a dummy unsubscribe function
-    return () => {};
   }
 };
