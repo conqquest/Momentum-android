@@ -9,6 +9,7 @@ import SettingsView from './components/SettingsView';
 import JournalModal from './components/JournalModal';
 import LoginScreen from './components/LoginScreen';
 import { RefreshCw, Heart } from 'lucide-react';
+import { initNotifications } from './services/NotificationService';
 
 const SplashOverlay = ({ exit }) => {
   return (
@@ -114,7 +115,7 @@ const OnboardingForm = () => {
 };
 
 const MainAppContent = () => {
-  const { activeTab, loading, displayName, gender, themeColor, user, isGuest } = useContext(AppContext);
+  const { activeTab, loading, displayName, gender, themeColor, user, isGuest, habits, logs } = useContext(AppContext);
   const [showSplash, setShowSplash] = useState(true);
   const [exitSplash, setExitSplash] = useState(false);
 
@@ -136,6 +137,17 @@ const MainAppContent = () => {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', themeColor || 'default');
   }, [themeColor]);
+
+  // Init notifications once the splash is gone (after 2.7s)
+  useEffect(() => {
+    if (showSplash) return;
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayLog = logs?.[todayStr];
+    const checked = todayLog?.habitsChecked || {};
+    const completedToday = (habits || []).filter(h => checked[h.id] === true).length;
+    const totalHabits = (habits || []).length;
+    initNotifications(completedToday, totalHabits).catch(console.error);
+  }, [showSplash, habits]); // re-run if habits list changes
 
   if (loading) {
     return (

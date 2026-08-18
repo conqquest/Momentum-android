@@ -1,11 +1,12 @@
 import React, { useContext, useState, useMemo } from 'react';
 import { AppContext, getTodayDateString } from '../context/AppContext';
 import { getSavedFirebaseConfig, loginWithGoogle, logout } from '../firebase';
+import { setNotificationsEnabled, areNotificationsEnabled } from '../services/NotificationService';
 import { 
   Database, ShieldAlert, Key, Download, Upload, RefreshCw, 
   User, Plus, Trash2, ChevronDown, ChevronUp, Flame, Target,
   CalendarDays, TrendingUp, LogIn, Cloud, CloudOff, FileDown, 
-  FileUp, Settings, Sparkles, Award, Palette
+  FileUp, Settings, Sparkles, Award, Palette, Bell, BellOff
 } from 'lucide-react';
 
 /* ─── Contribution Heatmap Component ─── */
@@ -438,6 +439,34 @@ const SettingsView = () => {
     }
   };
 
+  /* ── Notification toggle ── */
+  const [notifEnabled, setNotifEnabled] = useState(() => areNotificationsEnabled());
+  const [notifLoading, setNotifLoading] = useState(false);
+
+  const handleToggleNotifications = async () => {
+    setNotifLoading(true);
+    try {
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const todayLog = logs?.[todayStr];
+      const checked = todayLog?.habitsChecked || {};
+      const completedToday = (habits || []).filter(h => checked[h.id] === true).length;
+      const totalHabits = (habits || []).length;
+
+      const result = await setNotificationsEnabled(!notifEnabled, completedToday, totalHabits);
+      if (result === 'denied') {
+        alert('Notification permission was denied. Please enable it in your phone Settings → Apps → Momentum → Notifications.');
+      } else {
+        setNotifEnabled(prev => !prev);
+      }
+    } catch (err) {
+      console.error('[Settings] Notification toggle error:', err);
+      alert('Could not change notification setting. Please try again.');
+    } finally {
+      setNotifLoading(false);
+    }
+  };
+
+
   return (
     <div className="container profile-container">
 
@@ -568,6 +597,69 @@ const SettingsView = () => {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* ═══ Notifications ═══ */}
+      <div className="profile-section">
+        <div className="profile-section-header" style={{ cursor: 'default' }}>
+          <div className="profile-section-title">
+            <div className="profile-section-icon">
+              {notifEnabled
+                ? <Bell size={16} color="var(--accent-color)" />
+                : <BellOff size={16} color="var(--text-muted)" />}
+            </div>
+            <div>
+              <span>Habit Reminders</span>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 500, marginTop: 2 }}>
+                {notifEnabled ? 'Every 4 hours • 6 daily reminders' : 'Tap to enable push notifications'}
+              </div>
+            </div>
+          </div>
+          {/* Toggle switch */}
+          <button
+            onClick={handleToggleNotifications}
+            disabled={notifLoading}
+            aria-label="Toggle habit reminders"
+            style={{
+              width: 50, height: 28, borderRadius: 14,
+              background: notifEnabled ? 'var(--accent-color)' : 'var(--border-color)',
+              border: 'none', cursor: notifLoading ? 'wait' : 'pointer',
+              position: 'relative', transition: 'background 0.2s ease',
+              flexShrink: 0, padding: 0,
+            }}
+          >
+            <div style={{
+              position: 'absolute',
+              top: 3, left: notifEnabled ? 24 : 4,
+              width: 22, height: 22, borderRadius: '50%',
+              background: '#fff',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
+              transition: 'left 0.2s ease',
+            }} />
+          </button>
+        </div>
+
+        {notifEnabled && (
+          <div className="profile-section-body" style={{ paddingTop: 0, paddingBottom: 16 }}>
+            <div style={{
+              display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
+              gap: 8, marginBottom: 12,
+            }}>
+              {['9:00 AM', '1:00 PM', '5:00 PM', '9:00 PM', '+', '...'].map((t, i) => (
+                <div key={i} style={{
+                  padding: '8px 4px', borderRadius: 10, textAlign: 'center',
+                  background: i < 4 ? 'var(--accent-light)' : 'var(--bg-main)',
+                  border: '1.5px solid var(--border-color)',
+                }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: i < 4 ? 'var(--accent-color)' : 'var(--text-muted)' }}>{t}</div>
+                </div>
+              ))}
+            </div>
+            <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5, margin: 0 }}>
+              🔔 You'll get a reminder every <strong>4 hours</strong> to log your habits. The app re-schedules them automatically each time you open it.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* ═══ Sync & Google Login ═══ */}
