@@ -407,6 +407,7 @@ const PeriodTracker = () => {
   const [logBBT, setLogBBT] = useState('');
   const [logNotes, setLogNotes] = useState('');
   const [showPeriodStart, setShowPeriodStart] = useState(false);
+  const [toast, setToast] = useState('');
 
   // Preload today's log when switching to Log Day tab
   const loadDayLog = useCallback((ds) => {
@@ -437,18 +438,25 @@ const PeriodTracker = () => {
     alert('Day logged! ✓');
   };
 
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 2500);
+  };
+
   const startPeriod = (startDate) => {
     const newCycle = { id: Date.now(), start: startDate, end: null };
     const updated = [...cycles, newCycle];
     setCycles(updated);
     localStorage.setItem('pt_cycles', JSON.stringify(updated));
     setShowPeriodStart(false);
+    showToast('🩸 Period started — tracking begun!');
   };
 
   const endPeriod = (cycleId, endDate) => {
     const updated = cycles.map(c => c.id === cycleId ? { ...c, end: endDate } : c);
     setCycles(updated);
     localStorage.setItem('pt_cycles', JSON.stringify(updated));
+    showToast('✅ Period ended — cycle recorded!');
   };
 
   const predictions = useMemo(() => computePredictions(cycles), [cycles]);
@@ -528,22 +536,42 @@ const PeriodTracker = () => {
 
   return (
     <div style={{ paddingBottom: 8 }}>
-      {/* Header Banner */}
+      {/* Toast notification */}
+      {toast ? (
+        <div style={{
+          position: 'fixed', top: 72, left: '50%',
+          transform: 'translateX(-50%)',
+          background: '#1f1a18', color: '#fff',
+          padding: '12px 22px', borderRadius: 20,
+          fontSize: 14, fontWeight: 700,
+          zIndex: 9999,
+          boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+          whiteSpace: 'nowrap',
+          animation: 'slideUpFade 0.25s ease',
+        }}>
+          {toast}
+        </div>
+      ) : null}
+
       <div style={{
         background: 'linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%)',
         borderRadius: 24,
         padding: '20px 20px 0',
         marginBottom: 16,
         border: '1.5px solid #f8bbd9',
-        overflow: 'hidden',
         position: 'relative',
+        overflow: 'visible',
       }}>
+        {/* Decorative circle — pointer-events:none so it NEVER blocks taps */}
         <div style={{
           position: 'absolute', top: -20, right: -20,
           width: 120, height: 120, borderRadius: '50%',
           background: 'rgba(236,72,153,0.08)',
+          pointerEvents: 'none',
+          zIndex: 0,
         }} />
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 2 }}>
           <div>
             <h2 style={{ fontSize: 20, fontWeight: 900, color: '#831843', letterSpacing: '-0.5px' }}>
               🌸 Cycle Tracker
@@ -555,31 +583,42 @@ const PeriodTracker = () => {
           {/* Quick start/end period button */}
           {activeCycle ? (
             <button
-              onClick={() => { if (confirm('End period today?')) endPeriod(activeCycle.id, today()); }}
+              onClick={() => {
+                if (window.confirm('Mark period as ended today?')) {
+                  endPeriod(activeCycle.id, today());
+                }
+              }}
               style={{
-                padding: '8px 14px', borderRadius: 12,
+                padding: '10px 16px', borderRadius: 14,
                 background: '#ef4444', color: '#fff',
-                border: 'none', fontSize: 12, fontWeight: 800, cursor: 'pointer',
+                border: 'none', fontSize: 13, fontWeight: 800,
+                cursor: 'pointer', touchAction: 'manipulation',
+                boxShadow: '0 3px 10px rgba(239,68,68,0.35)',
+                position: 'relative', zIndex: 5,
               }}
             >
-              End Period
+              🛑 End Period
             </button>
           ) : (
             <button
               onClick={() => startPeriod(today())}
               style={{
-                padding: '8px 14px', borderRadius: 12,
-                background: '#ec4899', color: '#fff',
-                border: 'none', fontSize: 12, fontWeight: 800, cursor: 'pointer',
+                padding: '10px 16px', borderRadius: 14,
+                background: 'linear-gradient(135deg,#ec4899,#8b5cf6)',
+                color: '#fff',
+                border: 'none', fontSize: 13, fontWeight: 800,
+                cursor: 'pointer', touchAction: 'manipulation',
+                boxShadow: '0 3px 10px rgba(236,72,153,0.4)',
+                position: 'relative', zIndex: 5,
               }}
             >
-              + Start Period
+              🩸 Start Period
             </button>
           )}
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 4, marginTop: 18, overflowX: 'auto' }} className="hide-scrollbar">
+        <div style={{ display: 'flex', gap: 2, marginTop: 18, overflowX: 'auto', position: 'relative', zIndex: 2 }} className="hide-scrollbar">
           {TABS.map(t => (
             <button
               key={t}
@@ -589,7 +628,7 @@ const PeriodTracker = () => {
               }}
               style={{
                 padding: '10px 16px', borderRadius: '14px 14px 0 0',
-                border: 'none', cursor: 'pointer',
+                border: 'none', cursor: 'pointer', touchAction: 'manipulation',
                 fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap',
                 background: activeTab === t ? 'var(--bg-main)' : 'transparent',
                 color: activeTab === t ? '#9d174d' : '#9d174d99',
