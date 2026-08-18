@@ -5,6 +5,7 @@ import { CapacitorPedometer } from '@capgo/capacitor-pedometer';
 import { 
   Activity, Scale, Ruler, User as UserIcon, Plus, Info, Zap
 } from 'lucide-react';
+import PeriodTracker from './PeriodTracker';
 
 const NutritionProgress = ({ label, current, target, unit, color }) => {
   const percentage = Math.min(100, Math.round((current / target) * 100)) || 0;
@@ -129,7 +130,20 @@ const ExploreView = () => {
 
   return (
     <div className="container" style={{ paddingBottom: '80px' }}>
-      <h2 style={{ fontSize: '20px', fontWeight: '800', marginBottom: '20px', color: 'var(--text-primary)' }}>Body & Nutrition</h2>
+
+      {/* ── Period Tracker (Female only) ── */}
+      {gender === 'Female' && <PeriodTracker />}
+
+      {/* ── Section divider ── */}
+      {gender === 'Female' && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '8px 0 20px' }}>
+          <div style={{ flex: 1, height: 1, background: 'var(--border-color)' }} />
+          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Body & Nutrition</span>
+          <div style={{ flex: 1, height: 1, background: 'var(--border-color)' }} />
+        </div>
+      )}
+
+      <h2 style={{ fontSize: '20px', fontWeight: '800', marginBottom: '20px', color: 'var(--text-primary)', display: gender === 'Female' ? 'none' : 'block' }}>Body &amp; Nutrition</h2>
 
       {/* Body Stats Input Card */}
       <div className="profile-section">
