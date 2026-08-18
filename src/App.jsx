@@ -11,22 +11,143 @@ import LoginScreen from './components/LoginScreen';
 import { RefreshCw, Heart } from 'lucide-react';
 import { initNotifications } from './services/NotificationService';
 
+/* ═══════════════════════════════════════════════════
+   CINEMATIC SPLASH — Canvas particles + CSS animation
+═══════════════════════════════════════════════════ */
+const useSplashCanvas = (canvasRef) => {
+  React.useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    const resize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Particle system
+    const PARTICLE_COUNT = 80;
+    const particles = Array.from({ length: PARTICLE_COUNT }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.8 + 0.3,
+      speedX: (Math.random() - 0.5) * 0.35,
+      speedY: (Math.random() - 0.5) * 0.35,
+      opacity: Math.random() * 0.6 + 0.2,
+      twinkleSpeed: Math.random() * 0.02 + 0.008,
+      twinklePhase: Math.random() * Math.PI * 2,
+      color: ['#fbbf24', '#f59e0b', '#fde68a', '#ffffff', '#c084fc', '#818cf8'][
+        Math.floor(Math.random() * 6)
+      ],
+    }));
+
+    let frame = 0;
+    let animId;
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      frame++;
+
+      particles.forEach((p) => {
+        p.x += p.speedX;
+        p.y += p.speedY;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+
+        const twinkle = Math.sin(frame * p.twinkleSpeed + p.twinklePhase) * 0.3 + 0.7;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r * twinkle, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.opacity * twinkle;
+        ctx.fill();
+      });
+
+      ctx.globalAlpha = 1;
+      animId = requestAnimationFrame(draw);
+    };
+
+    draw();
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', resize);
+    };
+  }, [canvasRef]);
+};
+
+const LETTERS = 'MOMENTUM'.split('');
+
 const SplashOverlay = ({ exit }) => {
+  const canvasRef = React.useRef(null);
+  useSplashCanvas(canvasRef);
+
   return (
     <div className={`splash-container ${exit ? 'exit' : ''}`}>
-      <div className="splash-ripple"></div>
-      <div className="splash-logo-wrapper">
-        <img 
-          src="/favicon.png" 
-          alt="Logo" 
-          className="splash-logo"
-          onError={(e) => {
-            // Fallback if PWA icon is not yet loaded in some views
-            e.target.style.display = 'none';
-          }}
-        />
-        <h1 className="splash-title">Momentum</h1>
-        <span className="splash-sub">Find your daily flow</span>
+      {/* Star canvas */}
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: 'absolute', inset: 0,
+          width: '100%', height: '100%',
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* Background radial glow */}
+      <div className="splash-bg-glow" />
+
+      {/* Outer slow-rotating ring */}
+      <div className="splash-ring splash-ring-outer" />
+      {/* Middle ring */}
+      <div className="splash-ring splash-ring-mid" />
+
+      {/* Orb */}
+      <div className="splash-orb-wrap">
+        <div className="splash-orb-pulse" />
+        <div className="splash-orb">
+          <svg width="90" height="90" viewBox="0 0 90 90" fill="none">
+            <defs>
+              <radialGradient id="orbGrad" cx="38%" cy="35%" r="60%">
+                <stop offset="0%" stopColor="#fff7c0" />
+                <stop offset="35%" stopColor="#fbbf24" />
+                <stop offset="70%" stopColor="#d97706" />
+                <stop offset="100%" stopColor="#78350f" />
+              </radialGradient>
+              <filter id="orbGlow">
+                <feGaussianBlur stdDeviation="4" result="blur" />
+                <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+            </defs>
+            <circle cx="45" cy="45" r="42" fill="url(#orbGrad)" filter="url(#orbGlow)" />
+            {/* Specular highlight */}
+            <ellipse cx="34" cy="30" rx="12" ry="8" fill="rgba(255,255,255,0.35)" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Text block */}
+      <div className="splash-text-block">
+        {/* Letter-by-letter MOMENTUM */}
+        <div className="splash-word" aria-label="Momentum">
+          {LETTERS.map((l, i) => (
+            <span
+              key={i}
+              className="splash-letter"
+              style={{ animationDelay: `${0.55 + i * 0.07}s` }}
+            >
+              {l}
+            </span>
+          ))}
+        </div>
+
+        {/* Golden divider */}
+        <div className="splash-divider" />
+
+        {/* Tagline */}
+        <p className="splash-tagline">Build habits. Build yourself.</p>
       </div>
     </div>
   );
