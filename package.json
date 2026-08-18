@@ -1,9 +1,11 @@
 {
   "name": "habit-tracker",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.1",
   "type": "module",
   "scripts": {
+    "version:bump": "node scripts/bump-version.js",
+    "prebuild": "node scripts/bump-version.js",
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
