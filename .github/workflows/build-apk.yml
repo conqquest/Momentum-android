@@ -105,10 +105,16 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
 
+      # Step 8.5: Rename APK to Momentum.apk
+      - name: Rename APK
+        run: |
+          mv android/app/build/outputs/apk/debug/app-debug.apk \
+             android/app/build/outputs/apk/debug/Momentum.apk
+
       # Step 9: Upload the compiled APK as a downloadable GitHub Action Artifact
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Momentum-Habit-Tracker-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: Momentum-APK
+          path: android/app/build/outputs/apk/debug/Momentum.apk
           retention-days: 7
