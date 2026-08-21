@@ -365,7 +365,8 @@ export const AppProvider = ({ children }) => {
     try {
       const savedHabit = await apiRequest('/api/habits', 'POST', {
         name: habit.name,
-        category: habit.category
+        category: habit.category,
+        frequency: habit.frequency || 'daily',
       });
       if (savedHabit) {
         setHabits((prev) => [...prev, savedHabit]);

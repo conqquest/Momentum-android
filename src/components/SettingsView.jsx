@@ -174,7 +174,31 @@ const SettingsView = () => {
   const [tempName, setTempName] = useState(displayName);
   const [newHabitName, setNewHabitName] = useState('');
   const [newHabitCat, setNewHabitCat] = useState('Health');
+  const [newHabitFreq, setNewHabitFreq] = useState('daily');
   const [isSigningIn, setIsSigningIn] = useState(false);
+
+  // Random hero banner gradient — picked once on mount, independent of theme
+  const HERO_GRADIENTS = [
+    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+    'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+    'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
+    'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+    'linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)',
+    'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)',
+    'linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)',
+    'linear-gradient(135deg, #f6d365 0%, #fda085 100%)',
+    'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)',
+    'linear-gradient(135deg, #fddb92 0%, #d1fdff 100%)',
+    'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)',
+    'linear-gradient(135deg, #f77062 0%, #fe5196 100%)',
+    'linear-gradient(135deg, #0fd850 0%, #f9f047 100%)',
+  ];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const heroBg = useMemo(() => HERO_GRADIENTS[Math.floor(Math.random() * HERO_GRADIENTS.length)], []);
+
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
 
   // Avatar: stored as data-URL (custom photo) or preset key
@@ -353,8 +377,9 @@ const SettingsView = () => {
       alert('A habit with this name already exists!');
       return;
     }
-    addHabit({ id, name: newHabitName.trim(), category: newHabitCat });
+    addHabit({ id, name: newHabitName.trim(), category: newHabitCat, frequency: newHabitFreq });
     setNewHabitName('');
+    setNewHabitFreq('daily');
     alert('Habit "' + newHabitName.trim() + '" added successfully!');
   };
 
@@ -472,7 +497,8 @@ const SettingsView = () => {
 
       {/* ═══ Profile Hero Card ═══ */}
       <div className="profile-hero">
-        <div className="profile-hero-bg" />
+        <div className="profile-hero-bg" style={{ background: heroBg }} />
+
         <div className="profile-avatar-section">
           <div
             className="profile-avatar-ring"
@@ -861,7 +887,17 @@ const SettingsView = () => {
             <div key={hbt.id} className="profile-habit-item">
               <div>
                 <span className="profile-habit-name">{hbt.name}</span>
-                <span className="profile-habit-cat">{hbt.category}</span>
+                <div style={{ display: 'flex', gap: 6, marginTop: 3, flexWrap: 'wrap' }}>
+                  <span className="profile-habit-cat">{hbt.category}</span>
+                  <span style={{
+                    fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10,
+                    background: hbt.frequency === 'weekly' ? '#fef3c7' : '#dcfce7',
+                    color: hbt.frequency === 'weekly' ? '#d97706' : '#15803d',
+                    border: `1px solid ${hbt.frequency === 'weekly' ? '#fde68a' : '#bbf7d0'}`,
+                  }}>
+                    {hbt.frequency === 'weekly' ? '📅 Weekly' : '🔁 Daily'}
+                  </span>
+                </div>
               </div>
               <button
                 onClick={() => removeHabit(hbt.id)}
@@ -898,6 +934,46 @@ const SettingsView = () => {
               <option value="Work">Work / Creative</option>
             </select>
           </div>
+
+          {/* Frequency toggle */}
+          <div className="profile-form-group">
+            <label>Frequency</label>
+            <div style={{ display: 'flex', gap: 10, marginTop: 6 }}>
+              {['daily', 'weekly'].map(freq => (
+                <button
+                  key={freq}
+                  type="button"
+                  onClick={() => setNewHabitFreq(freq)}
+                  style={{
+                    flex: 1,
+                    padding: '10px 0',
+                    borderRadius: 14,
+                    border: `2px solid ${newHabitFreq === freq ? 'var(--accent-color)' : 'var(--border-color)'}`,
+                    background: newHabitFreq === freq ? 'var(--accent-light)' : 'var(--bg-card)',
+                    color: newHabitFreq === freq ? 'var(--accent-color)' : 'var(--text-secondary)',
+                    fontFamily: 'var(--font-family)',
+                    fontSize: 13,
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                  }}
+                >
+                  <span>{freq === 'daily' ? '🔁' : '📅'}</span>
+                  {freq === 'daily' ? 'Daily' : 'Weekly'}
+                </button>
+              ))}
+            </div>
+            <p style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600, marginTop: 8, lineHeight: 1.5 }}>
+              {newHabitFreq === 'daily'
+                ? 'Appears every day. Complete it each day.'
+                : 'Appears every day but only needs to be done once this week.'}
+            </p>
+          </div>
+
           <button type="submit" className="profile-btn profile-btn-primary">
             <Plus size={16} />
             Add Habit

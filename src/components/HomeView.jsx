@@ -64,6 +64,24 @@ const HomeView = () => {
   const isFuture = selectedDate > todayStr;
   const isPast = selectedDate < todayStr;
 
+  /* ── Which days are in the current week (Mon–Sun) ─── */
+  const weekDates = useMemo(() => {
+    return weeklyDates.map(d => d.dateStr);
+  }, [weeklyDates]);
+
+  /* ── For each weekly habit, was it done ANY day this week? ── */
+  const weeklyDoneMap = useMemo(() => {
+    const map = {};
+    habits.forEach(hbt => {
+      if ((hbt.frequency || 'daily') !== 'weekly') return;
+      map[hbt.id] = weekDates.some(ds => {
+        const l = logs[ds];
+        return l?.habitsChecked?.[hbt.id] === true;
+      });
+    });
+    return map;
+  }, [habits, logs, weekDates]);
+
   /* ── Today's data ───────────────────────────────── */
   const log = logs[selectedDate] || { habitsChecked: {} };
   const checked = log.habitsChecked || {};
@@ -249,46 +267,73 @@ const HomeView = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
           {habits.map(hbt => {
             const done = checked[hbt.id] === true;
+            const freq = hbt.frequency || 'daily';
+            const isWeekly = freq === 'weekly';
+            // Weekly: already ticked on another day this week?
+            const doneElsewhere = isWeekly && weeklyDoneMap[hbt.id] && !done;
+            // Can the user tick this box?
+            const canTick = isToday && !doneElsewhere;
+
             return (
               <div
                 key={hbt.id}
                 className="habit-item"
-                style={done ? {
-                  background: 'var(--accent-light)',
-                  borderLeftColor: 'var(--accent-color)',
-                  borderColor: 'transparent',
-                  opacity: 0.9,
-                } : !isToday ? {
-                  opacity: 0.55,
-                } : {}}
+                style={{
+                  ...(done ? {
+                    background: 'var(--accent-light)',
+                    borderLeftColor: 'var(--accent-color)',
+                    borderColor: 'transparent',
+                    opacity: 0.9,
+                  } : doneElsewhere ? {
+                    background: '#f0fdf4',
+                    borderLeftColor: '#4ade80',
+                    borderColor: 'transparent',
+                    opacity: 0.8,
+                  } : !isToday ? {
+                    opacity: 0.55,
+                  } : {}),
+                }}
               >
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <span style={{
                     fontWeight: 800, fontSize: 14,
-                    color: done ? 'var(--accent-color)' : 'var(--text-primary)',
+                    color: done
+                      ? 'var(--accent-color)'
+                      : doneElsewhere
+                      ? '#15803d'
+                      : 'var(--text-primary)',
                     display: 'block',
-                    textDecoration: done ? 'line-through' : 'none',
-                    textDecorationColor: 'var(--accent-color)',
+                    textDecoration: (done || doneElsewhere) ? 'line-through' : 'none',
+                    textDecorationColor: done ? 'var(--accent-color)' : '#4ade80',
                   }}>
                     {hbt.name}
                   </span>
-                  {hbt.category && (
-                    <span style={{
-                      fontSize: 11, color: 'var(--text-muted)',
-                      fontWeight: 600, marginTop: 2, display: 'block',
-                    }}>
-                      {hbt.category}
-                    </span>
-                  )}
+
+                  {/* Category + weekly-done badge only */}
+                  <div style={{ display: 'flex', gap: 5, marginTop: 3, flexWrap: 'wrap', alignItems: 'center' }}>
+                    {hbt.category && (
+                      <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600 }}>
+                        {hbt.category}
+                      </span>
+                    )}
+                    {doneElsewhere && (
+                      <span style={{
+                        fontSize: 10, fontWeight: 800, padding: '2px 7px', borderRadius: 10,
+                        background: '#dcfce7', color: '#15803d',
+                      }}>
+                        ✓ Done this week
+                      </span>
+                    )}
+                  </div>
                 </div>
 
-                {/* Checkbox — locked for non-today dates */}
+                {/* Checkbox — locked for non-today dates or weekly-done */}
                 <div
-                  className={`square-checkbox ${done ? 'checked' : ''}`}
-                  onClick={isToday ? () => toggleHabit(selectedDate, hbt.id) : undefined}
+                  className={`square-checkbox ${(done || doneElsewhere) ? 'checked' : ''}`}
+                  onClick={canTick ? () => toggleHabit(selectedDate, hbt.id) : undefined}
                   role="checkbox"
-                  aria-checked={done}
-                  aria-disabled={!isToday}
+                  aria-checked={done || doneElsewhere}
+                  aria-disabled={!canTick}
                   style={{
                     flexShrink: 0, width: 28, height: 28, borderRadius: 9,
                     ...(!isToday ? {
@@ -296,11 +341,15 @@ const HomeView = () => {
                       opacity: isFuture ? 0.35 : 0.6,
                       background: isFuture ? 'var(--bg-main)' : (done ? 'var(--accent-color)' : '#fff'),
                       borderColor: isFuture ? 'var(--text-muted)' : undefined,
+                    } : doneElsewhere ? {
+                      cursor: 'not-allowed',
+                      background: '#4ade80',
+                      borderColor: '#4ade80',
                     } : { cursor: 'pointer' }),
                   }}
                 >
-                  {done && <Check size={15} strokeWidth={3} />}
-                  {!done && !isToday && isFuture && (
+                  {(done || doneElsewhere) && <Check size={15} strokeWidth={3} />}
+                  {!done && !doneElsewhere && !isToday && isFuture && (
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
                       stroke="var(--text-muted)" strokeWidth="2.5" strokeLinecap="round">
                       <rect x="3" y="11" width="18" height="11" rx="2"/>

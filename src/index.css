@@ -46,8 +46,9 @@
   }
 
   body {
-    background-color: #0c0b0a !important; /* Dark outer background */
+    background-color: var(--bg-main); /* Follows active theme in dark mode too */
   }
+
 
   /* Comprehensive element overrides for Dark Mode */
   .glass-card,
@@ -108,119 +109,177 @@
 }
 
 /* Custom Theme Colors */
+/* ── BLUE ── */
 [data-theme="blue"] {
-  --accent-color: #3b82f6; 
-  --accent-hover: #2563eb; 
-  --accent-light: #dbeafe; 
-  --btn-text: #ffffff; 
+  --accent-color: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-light: #dbeafe;
+  --btn-text: #ffffff;
+  --bg-main: #f0f5ff;
+  --bg-card: #ffffff;
+  --border-color: #bfdbfe;
 }
 
+/* ── PURPLE ── */
 [data-theme="purple"] {
-  --accent-color: #8b5cf6; 
-  --accent-hover: #7c3aed; 
-  --accent-light: #ede9fe; 
-  --btn-text: #ffffff; 
+  --accent-color: #8b5cf6;
+  --accent-hover: #7c3aed;
+  --accent-light: #ede9fe;
+  --btn-text: #ffffff;
+  --bg-main: #f5f0ff;
+  --bg-card: #ffffff;
+  --border-color: #ddd6fe;
 }
 
+/* ── GREEN ── */
 [data-theme="green"] {
-  --accent-color: #10b981; 
-  --accent-hover: #059669; 
-  --accent-light: #d1fae5; 
-  --btn-text: #ffffff; 
+  --accent-color: #10b981;
+  --accent-hover: #059669;
+  --accent-light: #d1fae5;
+  --btn-text: #ffffff;
+  --bg-main: #f0fdf6;
+  --bg-card: #ffffff;
+  --border-color: #a7f3d0;
 }
 
+/* ── ROSE ── */
 [data-theme="rose"] {
-  --accent-color: #f43f5e; 
-  --accent-hover: #e11d48; 
-  --accent-light: #ffe4e6; 
-  --btn-text: #ffffff; 
+  --accent-color: #f43f5e;
+  --accent-hover: #e11d48;
+  --accent-light: #ffe4e6;
+  --btn-text: #ffffff;
+  --bg-main: #fff0f2;
+  --bg-card: #ffffff;
+  --border-color: #fecdd3;
 }
 
+/* ── AMBER ── */
 [data-theme="amber"] {
-  --accent-color: #fbbf24; 
-  --accent-hover: #f59e0b; 
-  --accent-light: #fef3c7; 
-  --btn-text: #3d2e2c; 
+  --accent-color: #fbbf24;
+  --accent-hover: #f59e0b;
+  --accent-light: #fef3c7;
+  --btn-text: #3d2e2c;
+  --bg-main: #fffbeb;
+  --bg-card: #ffffff;
+  --border-color: #fde68a;
 }
 
+/* ── TEAL ── */
 [data-theme="teal"] {
-  --accent-color: #14b8a6; 
-  --accent-hover: #0d9488; 
-  --accent-light: #ccfbf1; 
-  --btn-text: #ffffff; 
+  --accent-color: #14b8a6;
+  --accent-hover: #0d9488;
+  --accent-light: #ccfbf1;
+  --btn-text: #ffffff;
+  --bg-main: #f0fdfb;
+  --bg-card: #ffffff;
+  --border-color: #99f6e4;
 }
 
+/* ── ORANGE ── */
 [data-theme="orange"] {
-  --accent-color: #f97316; 
-  --accent-hover: #ea580c; 
-  --accent-light: #ffedd5; 
-  --btn-text: #ffffff; 
+  --accent-color: #f97316;
+  --accent-hover: #ea580c;
+  --accent-light: #ffedd5;
+  --btn-text: #ffffff;
+  --bg-main: #fff7f0;
+  --bg-card: #ffffff;
+  --border-color: #fed7aa;
 }
 
+/* ── PINK ── */
 [data-theme="pink"] {
-  --accent-color: #ec4899; 
-  --accent-hover: #db2777; 
-  --accent-light: #fce7f3; 
-  --btn-text: #ffffff; 
+  --accent-color: #ec4899;
+  --accent-hover: #db2777;
+  --accent-light: #fce7f3;
+  --btn-text: #ffffff;
+  --bg-main: #fff0f8;
+  --bg-card: #ffffff;
+  --border-color: #fbcfe8;
 }
 
+/* ═══════════════════ DARK MODE OVERRIDES ═══════════════════ */
 @media (prefers-color-scheme: dark) {
   [data-theme="blue"] {
-    --accent-color: #60a5fa; 
-    --accent-hover: #3b82f6; 
-    --accent-light: #1e3a8a; 
-    --btn-text: #ffffff; 
+    --accent-color: #60a5fa;
+    --accent-hover: #3b82f6;
+    --accent-light: #1e3a5f;
+    --btn-text: #ffffff;
+    --bg-main: #090e1a;
+    --bg-card: #101828;
+    --border-color: #1e3a5f;
   }
-  
+
   [data-theme="purple"] {
-    --accent-color: #a78bfa; 
-    --accent-hover: #8b5cf6; 
-    --accent-light: #4c1d95; 
-    --btn-text: #ffffff; 
+    --accent-color: #a78bfa;
+    --accent-hover: #8b5cf6;
+    --accent-light: #2e1a5c;
+    --btn-text: #ffffff;
+    --bg-main: #0c0916;
+    --bg-card: #160f28;
+    --border-color: #2e1a5c;
   }
-  
+
   [data-theme="green"] {
-    --accent-color: #34d399; 
-    --accent-hover: #10b981; 
-    --accent-light: #064e3b; 
-    --btn-text: #ffffff; 
+    --accent-color: #34d399;
+    --accent-hover: #10b981;
+    --accent-light: #063a26;
+    --btn-text: #ffffff;
+    --bg-main: #060f0c;
+    --bg-card: #0d1f18;
+    --border-color: #063a26;
   }
-  
+
   [data-theme="rose"] {
-    --accent-color: #fb7185; 
-    --accent-hover: #f43f5e; 
-    --accent-light: #881337; 
-    --btn-text: #ffffff; 
+    --accent-color: #fb7185;
+    --accent-hover: #f43f5e;
+    --accent-light: #4c0d1a;
+    --btn-text: #ffffff;
+    --bg-main: #120609;
+    --bg-card: #1f0a10;
+    --border-color: #4c0d1a;
   }
-  
+
   [data-theme="amber"] {
-    --accent-color: #fbbf24; 
-    --accent-hover: #f59e0b; 
-    --accent-light: #78350f; 
-    --btn-text: #3d2e2c; 
+    --accent-color: #fbbf24;
+    --accent-hover: #f59e0b;
+    --accent-light: #4d3000;
+    --btn-text: #1a1000;
+    --bg-main: #110d02;
+    --bg-card: #1e1704;
+    --border-color: #4d3000;
   }
-  
+
   [data-theme="teal"] {
-    --accent-color: #2dd4bf; 
-    --accent-hover: #14b8a6; 
-    --accent-light: #134e4a; 
-    --btn-text: #ffffff; 
+    --accent-color: #2dd4bf;
+    --accent-hover: #14b8a6;
+    --accent-light: #0c3d38;
+    --btn-text: #ffffff;
+    --bg-main: #050f0e;
+    --bg-card: #0b1e1c;
+    --border-color: #0c3d38;
   }
-  
+
   [data-theme="orange"] {
-    --accent-color: #fb923c; 
-    --accent-hover: #f97316; 
-    --accent-light: #7c2d12; 
-    --btn-text: #ffffff; 
+    --accent-color: #fb923c;
+    --accent-hover: #f97316;
+    --accent-light: #4d1c00;
+    --btn-text: #ffffff;
+    --bg-main: #110900;
+    --bg-card: #1e1004;
+    --border-color: #4d1c00;
   }
-  
+
   [data-theme="pink"] {
-    --accent-color: #f472b6; 
-    --accent-hover: #ec4899; 
-    --accent-light: #831843; 
-    --btn-text: #ffffff; 
+    --accent-color: #f472b6;
+    --accent-hover: #ec4899;
+    --accent-light: #4a0d2c;
+    --btn-text: #ffffff;
+    --bg-main: #110608;
+    --bg-card: #1e0d14;
+    --border-color: #4a0d2c;
   }
 }
+
 /* Reset and Base Styles */
 * {
   box-sizing: border-box;
@@ -240,8 +299,9 @@
 
 body {
   font-family: var(--font-family);
-  background-color: #f5ebe6; /* Outer background */
+  background-color: var(--bg-main); /* Tracks the active theme */
   color: var(--text-primary);
+
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -1281,7 +1341,7 @@ textarea:focus {
 
 .profile-hero-bg {
   height: 72px;
-  background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 50%, #e97a1e 100%);
+  background: transparent; /* random gradient applied via inline style in JSX */
   position: relative;
 }
 
