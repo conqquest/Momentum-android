@@ -1,66 +1,57 @@
 import React, { useContext } from 'react';
 import { AppContext } from '../context/AppContext';
-import { Home, BookOpen, Plus, Heart, User } from 'lucide-react';
+import { Home, Compass, Plus, BookOpen, User } from 'lucide-react';
+
+const NAV_ITEMS = [
+  { key: 'home',    icon: Home,     label: 'Home'    },
+  { key: 'explore', icon: Compass,  label: 'Explore' },
+  { key: null,      icon: Plus,     label: 'Log'     }, // FAB
+  { key: 'journey', icon: BookOpen, label: 'Journey' },
+  { key: 'profile', icon: User,     label: 'Profile' },
+];
 
 const BottomNav = () => {
   const { activeTab, setActiveTab, setShowJournalModal } = useContext(AppContext);
 
   return (
     <nav className="bottom-nav">
-      <div
-        className={`nav-item ${activeTab === 'home' ? 'active' : ''}`}
-        onClick={() => setActiveTab('home')}
-        role="button"
-        tabIndex={0}
-        aria-label="Home"
-      >
-        <Home size={22} />
-        <span>Home</span>
-      </div>
+      {NAV_ITEMS.map(item => {
+        const Icon = item.icon;
 
-      <div
-        className={`nav-item ${activeTab === 'explore' ? 'active' : ''}`}
-        onClick={() => setActiveTab('explore')}
-        role="button"
-        tabIndex={0}
-        aria-label="Explore"
-      >
-        <BookOpen size={22} />
-        <span>Explore</span>
-      </div>
+        // Center FAB
+        if (item.key === null) {
+          return (
+            <div
+              key="fab"
+              className="nav-item-fab"
+              onClick={() => setShowJournalModal(true)}
+              role="button"
+              tabIndex={0}
+              aria-label="New Journal Entry"
+            >
+              <Icon size={26} strokeWidth={2.5} />
+            </div>
+          );
+        }
 
-      {/* Floating Action Button */}
-      <div
-        className="nav-item-fab"
-        onClick={() => setShowJournalModal(true)}
-        role="button"
-        tabIndex={0}
-        aria-label="New Journal Entry"
-      >
-        <Plus size={28} />
-      </div>
-
-      <div
-        className={`nav-item ${activeTab === 'journey' ? 'active' : ''}`}
-        onClick={() => setActiveTab('journey')}
-        role="button"
-        tabIndex={0}
-        aria-label="Journey"
-      >
-        <Heart size={22} />
-        <span>Journey</span>
-      </div>
-
-      <div
-        className={`nav-item ${activeTab === 'profile' ? 'active' : ''}`}
-        onClick={() => setActiveTab('profile')}
-        role="button"
-        tabIndex={0}
-        aria-label="Profile"
-      >
-        <User size={22} />
-        <span>Profile</span>
-      </div>
+        const isActive = activeTab === item.key;
+        return (
+          <div
+            key={item.key}
+            className={`nav-item ${isActive ? 'active' : ''}`}
+            onClick={() => setActiveTab(item.key)}
+            role="button"
+            tabIndex={0}
+            aria-label={item.label}
+          >
+            <Icon
+              size={22}
+              strokeWidth={isActive ? 2.5 : 1.8}
+            />
+            <span>{item.label}</span>
+          </div>
+        );
+      })}
     </nav>
   );
 };

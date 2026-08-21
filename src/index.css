@@ -266,57 +266,191 @@ body {
   padding: 16px 20px;
 }
 
-/* Illustrated Card Layouts */
+/* ── Hero illustrated cards ── */
 .illust-card {
-  border-radius: 24px;
-  padding: 22px;
+  border-radius: 26px;
+  padding: 24px;
   margin-bottom: 16px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(61, 46, 44, 0.02);
-  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  border: 1.5px solid var(--border-color);
 }
 
 .card-morning {
-  background: linear-gradient(135deg, var(--bg-card) 0%, var(--accent-light) 100%);
-  color: var(--text-primary);
-  border: 1px solid var(--accent-color);
+  background: linear-gradient(140deg, var(--bg-card) 0%, var(--accent-light) 100%);
+  border-color: transparent;
 }
 
 .card-evening {
-  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
-  color: #3d2e2c;
+  background: linear-gradient(140deg, #f0f4ff 0%, #e0e8ff 100%);
+  border-color: transparent;
 }
 
 .card-pink {
-  background-color: #ffe4e6;
-  border-color: #fecdd3;
+  background-color: #fff0f3;
+  border-color: #ffd6dd;
 }
 
 .card-purple {
-  background-color: #f3e8ff;
-  border-color: #e9d5ff;
+  background-color: #f5f0ff;
+  border-color: #e5d8ff;
 }
 
 .card-green {
-  background-color: #dcfce7;
-  border-color: #bbf7d0;
+  background-color: #f0fdf4;
+  border-color: #c6f0d1;
 }
 
-/* Floating Center Action Button Navigation */
+/* ── Section header (title + See all) ── */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  margin-top: 8px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+}
+
+.section-see-all {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-color);
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: var(--accent-light);
+  transition: opacity 0.15s ease;
+}
+
+.section-see-all:active { opacity: 0.7; }
+
+/* ── 2-column metric grid (health app inspired) ── */
+.metric-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.metric-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: 22px;
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: var(--accent-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.metric-value {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--text-primary);
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+
+.metric-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.metric-sub {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* ── Pill bar chart (emotion/stats inspired) ── */
+.pill-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 8px;
+  height: 140px;
+  padding: 0 8px;
+}
+
+.pill-bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.pill-bar-track {
+  width: 100%;
+  max-width: 44px;
+  flex: 1;
+  background: var(--bg-elevated, #F0EDE6);
+  border-radius: 20px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.pill-bar-fill {
+  width: 100%;
+  border-radius: 20px;
+  transition: height 0.8s cubic-bezier(0.175,0.885,0.32,1.275);
+  min-height: 6px;
+}
+
+.pill-bar-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.pill-bar-pct {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+/* ── Bottom Navigation — floating pill card style ── */
 .bottom-nav {
   position: fixed;
   bottom: 0;
   width: 100%;
   max-width: var(--app-max-width);
-  height: 68px;
-  background: #ffffff;
+  height: 74px;
+  background: var(--bg-card);
   border-top: 1px solid var(--border-color);
   display: flex;
   justify-content: space-around;
   align-items: center;
   z-index: 100;
-  padding: 0 10px;
+  padding: 0 8px 6px;
+  /* Crisp elevated shadow like reference apps */
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.07);
 }
 
 .nav-item {
@@ -324,58 +458,63 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
-  gap: 4px;
+  gap: 3px;
   cursor: pointer;
-  width: 54px;
-  height: 54px;
-  transition: all 0.15s ease;
+  padding: 8px 12px;
+  border-radius: 16px;
+  transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1);
+  min-width: 52px;
 }
 
 .nav-item.active {
-  color: var(--text-primary);
+  color: var(--accent-color);
+  background: var(--accent-light);
 }
 
+/* FAB — elevated floating pill button */
 .nav-item-fab {
-  width: 56px;
-  height: 56px;
+  width: 54px;
+  height: 54px;
   background: var(--accent-color);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--btn-text) !important;
-  transform: translateY(-20px);
-  box-shadow: 0 8px 16px rgba(251, 191, 36, 0.4);
+  transform: translateY(-16px);
+  box-shadow:
+    0 6px 20px rgba(0,0,0,0.15),
+    0 2px 6px rgba(0,0,0,0.10);
   cursor: pointer;
-  border: 4px solid var(--bg-main);
-  transition: all 0.2s ease;
+  border: 3px solid var(--bg-main);
+  transition: all 0.22s cubic-bezier(0.34,1.56,0.64,1);
 }
 
-.nav-item-fab:hover {
-  background: var(--accent-hover);
-  transform: translateY(-22px) scale(1.05);
+.nav-item-fab:active {
+  transform: translateY(-14px) scale(0.94);
 }
 
-/* Header customization */
+/* ── App Header ── */
 .app-header {
-  padding: 40px 20px 16px;
+  padding: 48px 20px 8px;
   background: transparent;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
 }
 
 .profile-avatar {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: 2px solid var(--accent-color);
+  width: 44px;
+  height: 44px;
+  border-radius: 22px;
+  border: 2.5px solid var(--accent-color);
   object-fit: cover;
-  box-shadow: 0 2px 6px rgba(61,46,44,0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  flex-shrink: 0;
 }
 
 /* Horizontal scroll date carousel */
@@ -391,40 +530,46 @@ body {
   display: none;
 }
 
+/* ── Week strip date cards ── */
 .date-card {
-  flex: 0 0 50px;
-  height: 60px;
+  flex: 0 0 46px;
+  height: 68px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #ffffff;
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: 18px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  gap: 4px;
+  transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
 }
 
 .date-card.active {
   background: var(--accent-color);
   border-color: var(--accent-color);
-  box-shadow: 0 4px 10px rgba(251, 191, 36, 0.25);
-  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.14);
+  transform: translateY(-3px) scale(1.04);
 }
 
 .date-card .day-lbl {
   font-size: 10px;
-  font-weight: 600;
-  color: var(--text-secondary);
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
-.date-card.active .day-lbl {
-  color: var(--text-primary);
+.date-card.active .day-lbl,
+.date-card.active .date-num {
+  color: var(--btn-text);
 }
 
 .date-card .date-num {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
 }
 
 /* Prompt Grid view */
@@ -745,13 +890,14 @@ textarea:focus {
 }
 
 .btn-primary {
-  background: #111111;
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: var(--accent-color);
+  color: var(--btn-text);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
 }
 
-.btn-primary:hover {
-  background: #000000;
+.btn-primary:active {
+  transform: scale(0.97);
+  opacity: 0.9;
 }
 
 .btn-secondary {
@@ -791,19 +937,22 @@ textarea:focus {
   box-shadow: 0 3px 8px rgba(251, 191, 36, 0.3);
 }
 
+/* ── Habit row — card with left accent border ── */
 .habit-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
-  background: #ffffff;
+  padding: 14px 16px;
+  background: var(--bg-card);
   border: 1.5px solid var(--border-color);
-  border-radius: 16px;
-  transition: all 0.15s ease;
+  border-radius: 18px;
+  border-left: 4px solid var(--accent-color);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  transition: all 0.18s ease;
 }
 
-.habit-item:hover {
-  border-color: var(--text-muted);
+.habit-item:active {
+  transform: scale(0.98);
 }
 
 /* ═══════════════════════════════════════════════════════

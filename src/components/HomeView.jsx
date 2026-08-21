@@ -1,71 +1,100 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { AppContext } from '../context/AppContext';
-import { Check } from 'lucide-react';
+import { Check, Flame, Zap, TrendingUp, Target } from 'lucide-react';
+
+/* ── Circular Progress Ring (SVG) ────────────────── */
+const ProgressRing = ({ pct, size = 80, stroke = 7, color = 'var(--accent-color)' }) => {
+  const r = (size - stroke) / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (pct / 100) * circ;
+  return (
+    <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+      <circle
+        cx={size / 2} cy={size / 2} r={r}
+        fill="none" stroke="var(--border-color)" strokeWidth={stroke}
+      />
+      <circle
+        cx={size / 2} cy={size / 2} r={r}
+        fill="none" stroke={color} strokeWidth={stroke}
+        strokeLinecap="round"
+        strokeDasharray={circ}
+        strokeDashoffset={offset}
+        style={{ transition: 'stroke-dashoffset 0.8s cubic-bezier(0.175,0.885,0.32,1.275)' }}
+      />
+    </svg>
+  );
+};
 
 const HomeView = () => {
-  const { 
-    selectedDate, 
-    setSelectedDate, 
-    logs, 
-    habits, 
-    toggleHabit, 
-    setShowJournalModal 
+  const {
+    selectedDate,
+    setSelectedDate,
+    logs,
+    habits,
+    toggleHabit,
+    setShowJournalModal,
   } = useContext(AppContext);
 
-  // Generate 7 days centered around selected date
-  const getWeeklyDates = () => {
+  /* ── Week strip ─────────────────────────────────── */
+  const weeklyDates = useMemo(() => {
     const dates = [];
-    const baseDate = new Date(selectedDate);
-    
-    // Get starting day (Mon is 1, Sun is 0)
-    const dayOfWeek = baseDate.getDay();
-    const distanceToMon = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-    
-    const monday = new Date(baseDate);
-    monday.setDate(baseDate.getDate() + distanceToMon);
+    const base = new Date(selectedDate);
+    const dow = base.getDay();
+    const distMon = dow === 0 ? -6 : 1 - dow;
+    const monday = new Date(base);
+    monday.setDate(base.getDate() + distMon);
 
     for (let i = 0; i < 7; i++) {
       const d = new Date(monday);
       d.setDate(monday.getDate() + i);
       const y = d.getFullYear();
       const m = String(d.getMonth() + 1).padStart(2, '0');
-      const dateNum = String(d.getDate()).padStart(2, '0');
-      const dateStr = `${y}-${m}-${dateNum}`;
-      const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
-      dates.push({ dateStr, dayNum: d.getDate(), dayName });
+      const day = String(d.getDate()).padStart(2, '0');
+      dates.push({
+        dateStr: `${y}-${m}-${day}`,
+        dayNum: d.getDate(),
+        dayName: d.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 2),
+      });
     }
     return dates;
-  };
+  }, [selectedDate]);
 
-  const weeklyDates = getWeeklyDates();
+  const todayStr = new Date().toISOString().slice(0, 10);
 
-  // Retrieve current logs for the day
-  const currentDayLog = logs[selectedDate] || {
-    morningReflect: '',
-    eveningReflect: '',
-    momentText: '',
-    weather: 'Sunny',
-    moodDetail: 'Calm',
-    emotions: { happy: 25, sad: 25, calm: 25, anxious: 25 },
-    habitsChecked: {}
-  };
+  /* ── Today's data ───────────────────────────────── */
+  const log = logs[selectedDate] || { habitsChecked: {} };
+  const checked = log.habitsChecked || {};
+  const completedCount = habits.filter(h => checked[h.id] === true).length;
+  const totalCount = habits.length || 1;
+  const pct = Math.round((completedCount / totalCount) * 100);
 
-  const habitsChecked = currentDayLog.habitsChecked || {};
-
-  const handleQuickPrompt = (promptText) => {
-    setShowJournalModal(true);
-  };
+  /* ── Streak calc ────────────────────────────────── */
+  const streak = useMemo(() => {
+    let s = 0;
+    const d = new Date();
+    while (true) {
+      const ds = d.toISOString().slice(0, 10);
+      const l = logs[ds];
+      if (!l || !l.habitsChecked) break;
+      const any = Object.values(l.habitsChecked).some(Boolean);
+      if (!any) break;
+      s++;
+      d.setDate(d.getDate() - 1);
+    }
+    return s;
+  }, [logs]);
 
   return (
-    <div className="container">
-      {/* Weekly Date Navigation Strip */}
-      <div className="date-selector" style={{ justifyContent: 'space-between' }}>
-        {weeklyDates.map((item) => (
+    <div className="container" style={{ paddingTop: 8 }}>
+
+      {/* ── Week Date Strip ─────────────────────────── */}
+      <div className="date-selector" style={{ justifyContent: 'space-between', marginBottom: 4 }}>
+        {weeklyDates.map(item => (
           <div
             key={item.dateStr}
             className={`date-card ${selectedDate === item.dateStr ? 'active' : ''}`}
             onClick={() => setSelectedDate(item.dateStr)}
-            style={{ flex: 1, minWidth: '46px' }}
+            style={{ flex: 1 }}
           >
             <span className="day-lbl">{item.dayName}</span>
             <span className="date-num">{item.dayNum}</span>
@@ -73,71 +102,167 @@ const HomeView = () => {
         ))}
       </div>
 
-      {/* Greeting Cards */}
-      <h2 style={{ fontSize: '15px', fontWeight: '800', marginBottom: '12px', color: 'var(--text-primary)' }}>My Journal</h2>
-      
-      {/* Illustrated Morning Card */}
-      <div 
-        className="illust-card card-morning" 
-        onClick={() => setShowJournalModal(true)}
-        style={{ cursor: 'pointer', minHeight: '160px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
-      >
-        <div>
-          <span style={{ fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', opacity: 0.8, color: 'var(--text-secondary)' }}>Morning check-in</span>
-          <h3 style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', marginTop: '4px', textTransform: 'none', letterSpacing: 'normal' }}>
-            Let's start your day
-          </h3>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '12px', marginTop: '2px', fontWeight: '500' }}>
-            {currentDayLog.morningReflect || "Begin with a mindful morning reflections."}
-          </p>
+      {/* ── Today's Progress Hero Card ──────────────── */}
+      <div className="illust-card card-morning" style={{ display: 'flex', alignItems: 'center', gap: 20, marginTop: 12 }}>
+        {/* Progress ring */}
+        <div style={{ position: 'relative', flexShrink: 0 }}>
+          <ProgressRing pct={pct} size={82} />
+          <div style={{
+            position: 'absolute', inset: 0,
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{ fontSize: 18, fontWeight: 900, color: 'var(--text-primary)', lineHeight: 1 }}>
+              {pct}%
+            </span>
+          </div>
         </div>
 
-        {/* sun illustration */}
-        <div style={{ position: 'absolute', bottom: 0, right: 0, width: '130px', height: '110px', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', bottom: '-10px', right: '-10px', width: '90px', height: '90px', borderRadius: '50%', background: 'var(--accent-color)', opacity: 0.4 }}></div>
-          <div style={{ position: 'absolute', bottom: '-20px', right: '30px', width: '100px', height: '100px', borderRadius: '50%', background: 'var(--accent-color)', opacity: 0.2 }}></div>
-          
-          <div style={{ position: 'absolute', bottom: '40px', right: '35px', width: '54px', height: '54px', borderRadius: '50%', background: 'var(--accent-color)', border: '3px solid var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-            <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'var(--btn-text)', position: 'absolute', left: '14px', top: '18px' }}></div>
-            <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'var(--btn-text)', position: 'absolute', right: '14px', top: '18px' }}></div>
-            <div style={{ width: '10px', height: '5px', borderBottom: '2.5px solid var(--btn-text)', borderRadius: '0 0 10px 10px', position: 'absolute', top: '24px' }}></div>
-          </div>
+        {/* Text side */}
+        <div style={{ flex: 1 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            Today's Progress
+          </p>
+          <h3 style={{ fontSize: 20, fontWeight: 900, color: 'var(--text-primary)', marginTop: 3, lineHeight: 1.2 }}>
+            {completedCount}/{totalCount} habits done
+          </h3>
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4, fontWeight: 600, lineHeight: 1.4 }}>
+            {pct === 100
+              ? '🎉 Perfect day! All habits complete.'
+              : pct >= 50
+              ? 'Keep going — you\'re halfway there!'
+              : 'Start your first habit of the day.'}
+          </p>
         </div>
       </div>
 
-      {/* Habits Checklist (Square Checkbox Core Feature) */}
-      <div className="flex-row" style={{ marginTop: '8px', marginBottom: '12px' }}>
-        <h2 style={{ fontSize: '15px', fontWeight: '800', color: 'var(--text-primary)' }}>Habit Tracker</h2>
-        <span 
-          style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: '700', cursor: 'pointer' }}
+      {/* ── Metric Grid ─────────────────────────────── */}
+      <div className="metric-grid">
+        {/* Streak */}
+        <div className="metric-card">
+          <div className="metric-icon">
+            <Flame size={18} color="var(--accent-color)" />
+          </div>
+          <div className="metric-value">{streak}</div>
+          <div className="metric-label">Day Streak</div>
+          <div className="metric-sub">days in a row</div>
+        </div>
+
+        {/* Completion */}
+        <div className="metric-card">
+          <div className="metric-icon">
+            <Target size={18} color="var(--accent-color)" />
+          </div>
+          <div className="metric-value">{pct}%</div>
+          <div className="metric-label">Today</div>
+          <div className="metric-sub">{completedCount} of {totalCount} done</div>
+        </div>
+
+        {/* Total habits */}
+        <div className="metric-card">
+          <div className="metric-icon">
+            <Zap size={18} color="var(--accent-color)" />
+          </div>
+          <div className="metric-value">{habits.length}</div>
+          <div className="metric-label">Habits</div>
+          <div className="metric-sub">tracked daily</div>
+        </div>
+
+        {/* Week avg */}
+        <div className="metric-card">
+          <div className="metric-icon">
+            <TrendingUp size={18} color="var(--accent-color)" />
+          </div>
+          <div className="metric-value">
+            {(() => {
+              let total = 0, days = 0;
+              for (let i = 0; i < 7; i++) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const ds = d.toISOString().slice(0, 10);
+                const l = logs[ds];
+                if (l?.habitsChecked && habits.length > 0) {
+                  const c = habits.filter(h => l.habitsChecked[h.id] === true).length;
+                  total += Math.round((c / habits.length) * 100);
+                  days++;
+                }
+              }
+              return days > 0 ? `${Math.round(total / days)}%` : '—';
+            })()}
+          </div>
+          <div className="metric-label">7-Day Avg</div>
+          <div className="metric-sub">completion rate</div>
+        </div>
+      </div>
+
+      {/* ── Habit Checklist ──────────────────────────── */}
+      <div className="section-header">
+        <span className="section-title">My Habits</span>
+        <span
+          className="section-see-all"
           onClick={() => setShowJournalModal(true)}
         >
-          Detailed Log
+          Log Day
         </span>
       </div>
 
       {habits.length === 0 ? (
-        <div className="glass-card" style={{ textAlign: 'center', padding: '16px' }}>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>No habits configured. Go to Profile Settings to add habits.</p>
+        <div style={{
+          background: 'var(--bg-card)', border: '1.5px dashed var(--border-color)',
+          borderRadius: 20, padding: '28px 20px', textAlign: 'center',
+        }}>
+          <div style={{ fontSize: 36, marginBottom: 8 }}>✨</div>
+          <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-secondary)' }}>
+            No habits yet
+          </p>
+          <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
+            Go to Profile → Habits to add your first one
+          </p>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
-          {habits.map((hbt) => {
-            const isCompleted = habitsChecked[hbt.id] === true;
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+          {habits.map(hbt => {
+            const done = checked[hbt.id] === true;
             return (
-              <div key={hbt.id} className="habit-item">
-                <div>
-                  <span style={{ fontWeight: '700', fontSize: '13px', color: 'var(--text-primary)', display: 'block' }}>{hbt.name}</span>
-                  <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{hbt.category}</span>
+              <div
+                key={hbt.id}
+                className="habit-item"
+                style={done ? {
+                  background: 'var(--accent-light)',
+                  borderLeftColor: 'var(--accent-color)',
+                  borderColor: 'transparent',
+                  opacity: 0.9,
+                } : {}}
+              >
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{
+                    fontWeight: 800, fontSize: 14,
+                    color: done ? 'var(--accent-color)' : 'var(--text-primary)',
+                    display: 'block',
+                    textDecoration: done ? 'line-through' : 'none',
+                    textDecorationColor: 'var(--accent-color)',
+                  }}>
+                    {hbt.name}
+                  </span>
+                  {hbt.category && (
+                    <span style={{
+                      fontSize: 11, color: 'var(--text-muted)',
+                      fontWeight: 600, marginTop: 2, display: 'block',
+                    }}>
+                      {hbt.category}
+                    </span>
+                  )}
                 </div>
-                {/* Square Checkbox */}
-                <div 
-                  className={`square-checkbox ${isCompleted ? 'checked' : ''}`}
+
+                {/* Checkbox */}
+                <div
+                  className={`square-checkbox ${done ? 'checked' : ''}`}
                   onClick={() => toggleHabit(selectedDate, hbt.id)}
                   role="checkbox"
-                  aria-checked={isCompleted}
+                  aria-checked={done}
+                  style={{ flexShrink: 0, width: 28, height: 28, borderRadius: 9 }}
                 >
-                  {isCompleted && <Check size={14} strokeWidth={3} />}
+                  {done && <Check size={15} strokeWidth={3} />}
                 </div>
               </div>
             );
@@ -145,46 +270,69 @@ const HomeView = () => {
         </div>
       )}
 
-      {/* Quick Journal Scroll Row */}
-      <div className="flex-row" style={{ marginTop: '8px', marginBottom: '8px' }}>
-        <h2 style={{ fontSize: '15px', fontWeight: '800', color: 'var(--text-primary)' }}>Quick Journal</h2>
-        <span 
-          style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: '700', cursor: 'pointer' }}
-          onClick={() => setShowJournalModal(true)}
-        >
+      {/* ── Quick Journal Prompts ─────────────────────── */}
+      <div className="section-header">
+        <span className="section-title">Quick Journal</span>
+        <span className="section-see-all" onClick={() => setShowJournalModal(true)}>
           See all
         </span>
       </div>
 
-      <div className="horizontal-scroll" style={{ marginBottom: '8px' }}>
-        {/* Grateful Prompts */}
-        <div className="prompt-card card-pink" onClick={() => handleQuickPrompt("I am grateful for...")}>
-          <div>
-            <h4 style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-primary)' }}>Pause & reflect 🌱</h4>
-            <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px', fontWeight: '600', lineHeight: '1.3' }}>
-              What are you grateful for today? Write down three small things.
-            </p>
+      <div className="horizontal-scroll" style={{ marginBottom: 16 }}>
+        {[
+          {
+            card: 'card-pink',
+            emoji: '🌱',
+            title: 'Pause & reflect',
+            body: 'What are you grateful for today?',
+            tags: ['Today', 'Personal'],
+          },
+          {
+            card: 'card-purple',
+            emoji: '☀️',
+            title: 'Set Intentions',
+            body: 'How do you want to feel today?',
+            tags: ['Today', 'Mindset'],
+          },
+          {
+            card: 'card-green',
+            emoji: '💪',
+            title: 'Evening wrap',
+            body: "What was your biggest win today?",
+            tags: ['Evening', 'Growth'],
+          },
+        ].map((p, i) => (
+          <div
+            key={i}
+            className={`prompt-card ${p.card}`}
+            onClick={() => setShowJournalModal(true)}
+            style={{ flex: '0 0 190px', minHeight: 130 }}
+          >
+            <div>
+              <h4 style={{ fontSize: 15, fontWeight: 800, color: 'var(--text-primary)' }}>
+                {p.emoji} {p.title}
+              </h4>
+              <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 6, fontWeight: 600, lineHeight: 1.4 }}>
+                {p.body}
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: 5, marginTop: 8, flexWrap: 'wrap' }}>
+              {p.tags.map(t => (
+                <span key={t} style={{
+                  fontSize: 10, fontWeight: 700,
+                  background: 'rgba(255,255,255,0.6)',
+                  backdropFilter: 'blur(4px)',
+                  color: 'var(--text-primary)',
+                  padding: '3px 9px', borderRadius: 12,
+                }}>
+                  {t}
+                </span>
+              ))}
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: '4px' }}>
-            <span style={{ fontSize: '9px', fontWeight: '700', background: 'var(--bg-main)', color: 'var(--text-primary)', padding: '2px 8px', borderRadius: '10px' }}>Today</span>
-            <span style={{ fontSize: '9px', fontWeight: '700', background: 'var(--bg-main)', color: 'var(--text-primary)', padding: '2px 8px', borderRadius: '10px' }}>Personal</span>
-          </div>
-        </div>
-
-        {/* Intention Prompts */}
-        <div className="prompt-card card-purple" onClick={() => handleQuickPrompt("My intentions are...")}>
-          <div>
-            <h4 style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-primary)' }}>Set Intentions ☀️</h4>
-            <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px', fontWeight: '600', lineHeight: '1.3' }}>
-              How do you want to feel today? Set your mindset goal.
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: '4px' }}>
-            <span style={{ fontSize: '9px', fontWeight: '700', background: 'var(--bg-main)', color: 'var(--text-primary)', padding: '2px 8px', borderRadius: '10px' }}>Today</span>
-            <span style={{ fontSize: '9px', fontWeight: '700', background: 'var(--bg-main)', color: 'var(--text-primary)', padding: '2px 8px', borderRadius: '10px' }}>Family</span>
-          </div>
-        </div>
+        ))}
       </div>
+
     </div>
   );
 };
