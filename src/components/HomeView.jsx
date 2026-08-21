@@ -60,6 +60,9 @@ const HomeView = () => {
   }, [selectedDate]);
 
   const todayStr = new Date().toISOString().slice(0, 10);
+  const isToday = selectedDate === todayStr;
+  const isFuture = selectedDate > todayStr;
+  const isPast = selectedDate < todayStr;
 
   /* ── Today's data ───────────────────────────────── */
   const log = logs[selectedDate] || { habitsChecked: {} };
@@ -206,6 +209,29 @@ const HomeView = () => {
         </span>
       </div>
 
+      {/* Lock banner for non-today dates */}
+      {!isToday && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          background: isFuture ? 'var(--accent-light)' : 'var(--bg-card)',
+          border: '1.5px solid var(--border-color)',
+          borderRadius: 16, padding: '12px 16px',
+          marginBottom: 12,
+        }}>
+          <span style={{ fontSize: 20 }}>{isFuture ? '🔒' : '📅'}</span>
+          <div>
+            <p style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+              {isFuture ? 'Future date' : 'Past date'}
+            </p>
+            <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: 0, marginTop: 2, fontWeight: 600 }}>
+              {isFuture
+                ? 'You can\'t tick habits for upcoming days.'
+                : 'Viewing your history — habit log is read-only.'}
+            </p>
+          </div>
+        </div>
+      )}
+
       {habits.length === 0 ? (
         <div style={{
           background: 'var(--bg-card)', border: '1.5px dashed var(--border-color)',
@@ -232,6 +258,8 @@ const HomeView = () => {
                   borderLeftColor: 'var(--accent-color)',
                   borderColor: 'transparent',
                   opacity: 0.9,
+                } : !isToday ? {
+                  opacity: 0.55,
                 } : {}}
               >
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -254,15 +282,31 @@ const HomeView = () => {
                   )}
                 </div>
 
-                {/* Checkbox */}
+                {/* Checkbox — locked for non-today dates */}
                 <div
                   className={`square-checkbox ${done ? 'checked' : ''}`}
-                  onClick={() => toggleHabit(selectedDate, hbt.id)}
+                  onClick={isToday ? () => toggleHabit(selectedDate, hbt.id) : undefined}
                   role="checkbox"
                   aria-checked={done}
-                  style={{ flexShrink: 0, width: 28, height: 28, borderRadius: 9 }}
+                  aria-disabled={!isToday}
+                  style={{
+                    flexShrink: 0, width: 28, height: 28, borderRadius: 9,
+                    ...(!isToday ? {
+                      cursor: 'not-allowed',
+                      opacity: isFuture ? 0.35 : 0.6,
+                      background: isFuture ? 'var(--bg-main)' : (done ? 'var(--accent-color)' : '#fff'),
+                      borderColor: isFuture ? 'var(--text-muted)' : undefined,
+                    } : { cursor: 'pointer' }),
+                  }}
                 >
                   {done && <Check size={15} strokeWidth={3} />}
+                  {!done && !isToday && isFuture && (
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                      stroke="var(--text-muted)" strokeWidth="2.5" strokeLinecap="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                  )}
                 </div>
               </div>
             );
