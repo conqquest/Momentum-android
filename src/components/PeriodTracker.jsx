@@ -91,18 +91,18 @@ const daysBetween = (a, b) => {
 const today = () => dateStr(new Date());
 
 /* ─── Prediction Engine ─── */
+const MIN_CYCLES_FOR_PREDICTION = 4;
+
 const computePredictions = (cycles) => {
-  if (cycles.length < 1) return null;
+  if (cycles.length < MIN_CYCLES_FOR_PREDICTION) return null;
   const sorted = [...cycles].sort((a, b) => a.start.localeCompare(b.start));
   const last = sorted[sorted.length - 1];
-  let avgCycle = 28;
+  // Compute avg cycle length from actual user data (no defaults)
+  const lengths = [];
+  for (let i = 1; i < sorted.length; i++) lengths.push(daysBetween(sorted[i - 1].start, sorted[i].start));
+  let avgCycle = Math.round(lengths.reduce((a, b) => a + b, 0) / lengths.length);
+  avgCycle = Math.max(21, Math.min(45, avgCycle));
   let avgPeriod = 5;
-  if (sorted.length >= 2) {
-    const lengths = [];
-    for (let i = 1; i < sorted.length; i++) lengths.push(daysBetween(sorted[i - 1].start, sorted[i].start));
-    avgCycle = Math.round(lengths.reduce((a, b) => a + b, 0) / lengths.length);
-    avgCycle = Math.max(21, Math.min(45, avgCycle));
-  }
   if (sorted.filter(c => c.end).length >= 1) {
     const durations = sorted.filter(c => c.end).map(c => daysBetween(c.start, c.end) + 1);
     avgPeriod = Math.round(durations.reduce((a, b) => a + b, 0) / durations.length);
@@ -626,8 +626,37 @@ const PeriodTracker = () => {
           ) : (
             <Card style={{ textAlign: 'center', padding: '32px 20px' }}>
               <div style={{ fontSize: 48, marginBottom: 14 }}>🌿</div>
-              <p style={{ fontWeight: 800, color: T.text, marginBottom: 8, fontSize: 16 }}>Start tracking your cycle</p>
-              <p style={{ fontSize: 13, color: T.textSec, lineHeight: 1.5 }}>Tap <strong>"+ Start Period"</strong> above when your period begins to unlock predictions.</p>
+              {cycles.length === 0 ? (
+                <>
+                  <p style={{ fontWeight: 800, color: T.text, marginBottom: 8, fontSize: 16 }}>Start tracking your cycle</p>
+                  <p style={{ fontSize: 13, color: T.textSec, lineHeight: 1.5 }}>Tap <strong>"+ Start Period"</strong> above when your period begins.</p>
+                </>
+              ) : (
+                <>
+                  <p style={{ fontWeight: 800, color: T.text, marginBottom: 8, fontSize: 16 }}>
+                    {cycles.length} of {MIN_CYCLES_FOR_PREDICTION} cycles tracked
+                  </p>
+                  {/* Progress dots */}
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 14 }}>
+                    {Array.from({ length: MIN_CYCLES_FOR_PREDICTION }).map((_, i) => (
+                      <div key={i} style={{
+                        width: 28, height: 28, borderRadius: '50%',
+                        background: i < cycles.length ? T.sage : T.border,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 13, fontWeight: 800,
+                        color: i < cycles.length ? '#fff' : T.textMuted,
+                        transition: 'all 0.3s ease',
+                        boxShadow: i < cycles.length ? `0 2px 8px ${T.sage}44` : 'none',
+                      }}>
+                        {i < cycles.length ? '✓' : i + 1}
+                      </div>
+                    ))}
+                  </div>
+                  <p style={{ fontSize: 13, color: T.textSec, lineHeight: 1.5 }}>
+                    Track <strong>{MIN_CYCLES_FOR_PREDICTION - cycles.length} more</strong> cycle{MIN_CYCLES_FOR_PREDICTION - cycles.length !== 1 ? 's' : ''} to unlock personalized predictions based on your real data.
+                  </p>
+                </>
+              )}
             </Card>
           )}
 
