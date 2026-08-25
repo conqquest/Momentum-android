@@ -3,10 +3,10 @@ import { AppContext } from '../context/AppContext';
 
 /* ─── Constants ─── */
 const FLOW_LEVELS = [
-  { key: 'spotting', label: 'Spotting', icon: '·', color: '#fca5a5' },
-  { key: 'light',    label: 'Light',    icon: '○', color: '#f87171' },
-  { key: 'medium',   label: 'Medium',   icon: '●', color: '#ef4444' },
-  { key: 'heavy',    label: 'Heavy',    icon: '◉', color: '#b91c1c' },
+  { key: 'spotting', label: 'Spotting', icon: '·', color: '#d4a574' },
+  { key: 'light',    label: 'Light',    icon: '○', color: '#c0784a' },
+  { key: 'medium',   label: 'Medium',   icon: '●', color: '#a0522d' },
+  { key: 'heavy',    label: 'Heavy',    icon: '◉', color: '#6b3a1f' },
 ];
 
 const SYMPTOMS = [
@@ -134,11 +134,11 @@ const computePredictions = (cycles) => {
 
 /* ─── Phase Info ─── */
 const PHASE_INFO = {
-  menstrual:  { label: 'Period',     color: '#ef4444', bg: '#fee2e2', emoji: '🔴', tip: 'Rest, use warmth for cramps, stay hydrated.' },
-  follicular: { label: 'Follicular', color: '#3b82f6', bg: '#dbeafe', emoji: '🌱', tip: 'Energy rising — great time for new challenges.' },
-  fertile:    { label: 'Fertile',    color: '#10b981', bg: '#d1fae5', emoji: '🌸', tip: 'Peak fertility window. Ovulation approaching.' },
-  ovulation:  { label: 'Ovulation',  color: '#8b5cf6', bg: '#ede9fe', emoji: '✨', tip: 'Peak energy & confidence — seize the day!' },
-  pms:        { label: 'PMS',        color: '#f59e0b', bg: '#fef3c7', emoji: '🌙', tip: 'Be gentle with yourself. Rest and self-care.' },
+  menstrual:  { label: 'Period',     color: '#c0392b', bg: '#fde8e5', emoji: '🔴', tip: 'Rest, use warmth for cramps, stay hydrated.' },
+  follicular: { label: 'Follicular', color: '#2980b9', bg: '#d6eaf8', emoji: '🌱', tip: 'Energy rising — great time for new challenges.' },
+  fertile:    { label: 'Fertile',    color: '#27ae60', bg: '#d5f5e3', emoji: '🌿', tip: 'Peak fertility window. Ovulation approaching.' },
+  ovulation:  { label: 'Ovulation',  color: '#8e44ad', bg: '#ebdef0', emoji: '✨', tip: 'Peak energy & confidence — seize the day!' },
+  pms:        { label: 'PMS',        color: '#d4a574', bg: '#fdf2e9', emoji: '🌙', tip: 'Be gentle with yourself. Rest and self-care.' },
 };
 
 /* ─── Phase Ring ─── */
@@ -267,11 +267,11 @@ const CycleCalendar = ({ cycles, predictions, dayLogs }) => {
           let color = 'var(--text-primary)';
           let border = 'none';
 
-          if (meta.period) { bg = '#fca5a5'; color = '#7f1d1d'; }
-          else if (meta.predictedPeriod) { bg = '#fee2e2'; color = '#ef4444'; border = '1px dashed #ef4444'; }
-          else if (meta.ovulation) { bg = '#a78bfa'; color = '#ffffff'; }
-          else if (meta.fertile) { bg = '#bbf7d0'; color = '#065f46'; }
-          else if (meta.pms) { bg = '#fef08a'; color = '#713f12'; }
+          if (meta.period) { bg = '#e8c4b8'; color = '#5c3d2e'; }
+          else if (meta.predictedPeriod) { bg = '#f5e6dc'; color = '#c0784a'; border = '1px dashed #c0784a'; }
+          else if (meta.ovulation) { bg = '#d7bfee'; color = '#ffffff'; }
+          else if (meta.fertile) { bg = '#c8e6d0'; color = '#1b5e38'; }
+          else if (meta.pms) { bg = '#fdf2e9'; color = '#8b6f47'; }
 
           return (
             <div
@@ -283,7 +283,7 @@ const CycleCalendar = ({ cycles, predictions, dayLogs }) => {
                 border: meta.isToday ? '2px solid var(--accent-color)' : border,
                 fontSize: 12, fontWeight: meta.isToday ? 800 : 500,
                 position: 'relative', cursor: ds ? 'pointer' : 'default',
-                boxShadow: meta.period ? '0 2px 6px rgba(239,68,68,0.15)' : 'none',
+                boxShadow: meta.period ? '0 2px 6px rgba(192,120,74,0.2)' : 'none',
               }}
             >
               {ds ? new Date(ds + 'T12:00:00').getDate() : ''}
@@ -298,14 +298,14 @@ const CycleCalendar = ({ cycles, predictions, dayLogs }) => {
       {/* Legend */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 14px', marginTop: 16, padding: '0 4px' }}>
         {[
-          { color: '#fca5a5', label: 'Period' },
-          { color: '#fee2e2', label: 'Predicted', dashed: true },
-          { color: '#bbf7d0', label: 'Fertile' },
-          { color: '#a78bfa', label: 'Ovulation' },
-          { color: '#fef08a', label: 'PMS' },
+          { color: '#e8c4b8', label: 'Period' },
+          { color: '#f5e6dc', label: 'Predicted', dashed: true },
+          { color: '#c8e6d0', label: 'Fertile' },
+          { color: '#d7bfee', label: 'Ovulation' },
+          { color: '#fdf2e9', label: 'PMS' },
         ].map(l => (
           <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <div style={{ width: 12, height: 12, borderRadius: 3, background: l.color, border: l.dashed ? '1px dashed #ef4444' : 'none' }} />
+            <div style={{ width: 12, height: 12, borderRadius: 3, background: l.color, border: l.dashed ? '1px dashed #c0784a' : 'none' }} />
             <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 600 }}>{l.label}</span>
           </div>
         ))}
@@ -554,11 +554,11 @@ const PeriodTracker = () => {
       ) : null}
 
       <div style={{
-        background: 'linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%)',
+        background: 'linear-gradient(135deg, #f7f3ee 0%, #e8f0e8 50%, #f0ead6 100%)',
         borderRadius: 24,
         padding: '20px 20px 0',
         marginBottom: 16,
-        border: '1.5px solid #f8bbd9',
+        border: '1.5px solid #c5d5c0',
         position: 'relative',
         overflow: 'visible',
       }}>
@@ -566,17 +566,17 @@ const PeriodTracker = () => {
         <div style={{
           position: 'absolute', top: -20, right: -20,
           width: 120, height: 120, borderRadius: '50%',
-          background: 'rgba(236,72,153,0.08)',
+          background: 'rgba(107,143,113,0.1)',
           pointerEvents: 'none',
           zIndex: 0,
         }} />
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 2 }}>
           <div>
-            <h2 style={{ fontSize: 20, fontWeight: 900, color: '#831843', letterSpacing: '-0.5px' }}>
-              🌸 Cycle Tracker
+            <h2 style={{ fontSize: 20, fontWeight: 900, color: '#3d4f3e', letterSpacing: '-0.5px' }}>
+              🌿 Cycle Tracker
             </h2>
-            <p style={{ fontSize: 13, color: '#9d174d', marginTop: 4, fontWeight: 500 }}>
+            <p style={{ fontSize: 13, color: '#5a6b5b', marginTop: 4, fontWeight: 500 }}>
               Your personal wellness companion
             </p>
           </div>
@@ -604,11 +604,11 @@ const PeriodTracker = () => {
               onClick={() => startPeriod(today())}
               style={{
                 padding: '10px 16px', borderRadius: 14,
-                background: 'linear-gradient(135deg,#ec4899,#8b5cf6)',
+                background: 'linear-gradient(135deg,#6B8F71,#4a6b4f)',
                 color: '#fff',
                 border: 'none', fontSize: 13, fontWeight: 800,
                 cursor: 'pointer', touchAction: 'manipulation',
-                boxShadow: '0 3px 10px rgba(236,72,153,0.4)',
+                boxShadow: '0 3px 10px rgba(107,143,113,0.4)',
                 position: 'relative', zIndex: 5,
               }}
             >
@@ -631,7 +631,7 @@ const PeriodTracker = () => {
                 border: 'none', cursor: 'pointer', touchAction: 'manipulation',
                 fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap',
                 background: activeTab === t ? 'var(--bg-main)' : 'transparent',
-                color: activeTab === t ? '#9d174d' : '#9d174d99',
+                color: activeTab === t ? '#3d4f3e' : '#3d4f3e88',
                 transition: 'all 0.15s ease',
               }}
             >
@@ -664,10 +664,10 @@ const PeriodTracker = () => {
           {/* Stats row */}
           {predictions && (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
-              <InsightCard emoji="📅" title="Avg Cycle" value={`${predictions.avgCycle}d`} color="#ec4899" />
-              <InsightCard emoji="🩸" title="Avg Period" value={`${predictions.avgPeriod}d`} color="#ef4444" />
-              <InsightCard emoji="🌸" title="Ovulation" value={predictions.ovulationDay.slice(5)} sub="Predicted date" color="#8b5cf6" />
-              <InsightCard emoji="🌿" title="Fertile Window" value={`${predictions.fertileStart.slice(5)} – ${predictions.fertileEnd.slice(5)}`} color="#10b981" />
+              <InsightCard emoji="📅" title="Avg Cycle" value={`${predictions.avgCycle}d`} color="#6B8F71" />
+              <InsightCard emoji="🩸" title="Avg Period" value={`${predictions.avgPeriod}d`} color="#c0392b" />
+              <InsightCard emoji="✨" title="Ovulation" value={predictions.ovulationDay.slice(5)} sub="Predicted date" color="#8e44ad" />
+              <InsightCard emoji="🌿" title="Fertile Window" value={`${predictions.fertileStart.slice(5)} – ${predictions.fertileEnd.slice(5)}`} color="#27ae60" />
             </div>
           )}
 
@@ -816,10 +816,10 @@ const PeriodTracker = () => {
             onClick={saveDayLog}
             style={{
               width: '100%', padding: '16px', borderRadius: 18,
-              background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
+              background: 'linear-gradient(135deg, #6B8F71 0%, #4a6b4f 100%)',
               color: '#fff', border: 'none',
               fontSize: 16, fontWeight: 800, cursor: 'pointer',
-              boxShadow: '0 4px 16px rgba(236,72,153,0.3)',
+              boxShadow: '0 4px 16px rgba(107,143,113,0.3)',
               transition: 'all 0.15s',
             }}
           >
@@ -883,7 +883,7 @@ const PeriodTracker = () => {
                           <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{count}x</span>
                         </div>
                         <div style={{ height: 6, background: 'var(--border-color)', borderRadius: 4, overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: `${(count / maxCount) * 100}%`, background: 'linear-gradient(90deg, #ec4899, #8b5cf6)', borderRadius: 4, transition: 'width 0.6s ease' }} />
+                          <div style={{ height: '100%', width: `${(count / maxCount) * 100}%`, background: 'linear-gradient(90deg, #6B8F71, #D4A574)', borderRadius: 4, transition: 'width 0.6s ease' }} />
                         </div>
                       </div>
                     </div>
@@ -947,7 +947,7 @@ const PeriodTracker = () => {
             </p>
             <div style={{ display: 'flex', gap: 10 }}>
               <button onClick={() => setShowPeriodStart(false)} style={{ flex: 1, padding: '13px', borderRadius: 14, border: '1.5px solid var(--border-color)', background: 'transparent', color: 'var(--text-secondary)', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>Not Now</button>
-              <button onClick={() => startPeriod(logDate)} style={{ flex: 1, padding: '13px', borderRadius: 14, border: 'none', background: '#ec4899', color: '#fff', fontSize: 14, fontWeight: 800, cursor: 'pointer' }}>Yes, Start</button>
+              <button onClick={() => startPeriod(logDate)} style={{ flex: 1, padding: '13px', borderRadius: 14, border: 'none', background: '#6B8F71', color: '#fff', fontSize: 14, fontWeight: 800, cursor: 'pointer' }}>Yes, Start</button>
             </div>
           </div>
         </div>
