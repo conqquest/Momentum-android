@@ -161,6 +161,9 @@ const SettingsView = () => {
     displayName, 
     setDisplayName,
     gender,
+    setGender,
+    userStats,
+    setUserStats,
     user,
     habits,
     addHabit,
@@ -172,6 +175,8 @@ const SettingsView = () => {
   } = useContext(AppContext);
   
   const [tempName, setTempName] = useState(displayName);
+  const [tempGender, setTempGender] = useState(gender);
+  const [tempAge, setTempAge] = useState(userStats.age || 25);
   const [newHabitName, setNewHabitName] = useState('');
   const [newHabitCat, setNewHabitCat] = useState('Health');
   const [newHabitFreq, setNewHabitFreq] = useState('daily');
@@ -365,8 +370,13 @@ const SettingsView = () => {
     e.preventDefault();
     if (tempName.trim()) {
       setDisplayName(tempName.trim());
-      alert('Profile name updated! Hi, ' + tempName.trim());
     }
+    setGender(tempGender);
+    setUserStats(prev => ({
+      ...prev,
+      age: Number(tempAge) || 25
+    }));
+    alert('Profile updated successfully!');
   };
 
   const handleCreateHabit = (e) => {
@@ -753,7 +763,33 @@ const SettingsView = () => {
               className="profile-input"
             />
           </div>
-          <button type="submit" className="profile-btn profile-btn-primary">
+
+          <div className="profile-form-group">
+            <label>Age</label>
+            <input
+              type="number"
+              value={tempAge}
+              onChange={(e) => setTempAge(e.target.value)}
+              placeholder="e.g. 25"
+              required
+              className="profile-input"
+            />
+          </div>
+
+          <div className="profile-form-group">
+            <label>Gender</label>
+            <select
+              value={tempGender}
+              onChange={(e) => setTempGender(e.target.value)}
+              className="profile-input profile-select"
+            >
+              <option value="Female">Female</option>
+              <option value="Male">Male</option>
+              <option value="Non-Binary">Non-Binary</option>
+            </select>
+          </div>
+
+          <button type="submit" className="profile-btn profile-btn-primary" style={{ marginTop: '12px' }}>
             Update Profile
           </button>
         </form>
