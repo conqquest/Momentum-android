@@ -2161,4 +2161,17 @@ textarea:focus {
   }
 }
 
+/* Update notifier sliding animation */
+@keyframes slideDownFade {
+  0% {
+    transform: translate(-50%, -20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+
 

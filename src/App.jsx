@@ -10,6 +10,7 @@ import JournalModal from './components/JournalModal';
 import LoginScreen from './components/LoginScreen';
 import { RefreshCw, Heart } from 'lucide-react';
 import { initNotifications } from './services/NotificationService';
+import UpdateNotifier from './components/UpdateNotifier';
 
 /* ═══════════════════════════════════════════════════
    CINEMATIC SPLASH — Canvas particles + CSS animation
@@ -320,6 +321,7 @@ const MainAppContent = () => {
 
       {!showSplash && !renderLogin && !renderOnboarding && (
         <>
+          <UpdateNotifier />
           <Header />
           <main style={{ flex: 1, overflowY: 'auto', paddingBottom: '20px' }}>
             {renderTabContent()}

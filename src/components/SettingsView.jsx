@@ -1052,10 +1052,11 @@ const SettingsView = () => {
 
       {/* Version Footer */}
       <div className="profile-footer">
-        <span>Momentum v1.0.0</span>
+        <span>Momentum v{typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1.0.0'}</span>
         <span>Made with ♡</span>
       </div>
     </div>
+
   );
 };
 

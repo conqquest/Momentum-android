@@ -55,3 +55,10 @@ gradle = gradle.replace(
 
 writeFileSync(gradlePath, gradle);
 console.log(`[bump-version] ✅ android/app/build.gradle updated`);
+
+// ── 4. Write version.json for update checks ──────────────────────────────────
+const versionJsonPath = join(ROOT, 'public', 'version.json');
+const versionJsonContent = JSON.stringify({ version: newVersion }, null, 2) + '\n';
+writeFileSync(versionJsonPath, versionJsonContent);
+console.log(`[bump-version] 🌐 public/version.json updated with version ${newVersion}`);
+
