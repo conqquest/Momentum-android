@@ -279,48 +279,13 @@ const SettingsView = () => {
 
     return { totalActiveDays, currentStreak, bestStreak, completionRate };
   }, [logs, habits]);
-
-  /* ─── Avatar Presets by Gender ─── */
-  const AVATAR_PRESETS = {
-    Female: [
-      { key: 'f1', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Aria&backgroundColor=ffd5dc' },
-      { key: 'f2', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Luna&backgroundColor=c0e8ff' },
-      { key: 'f3', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Zoe&backgroundColor=d4edda' },
-      { key: 'f4', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Maya&backgroundColor=fff3cd' },
-      { key: 'f5', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Nova&backgroundColor=e2d9f3' },
-      { key: 'f6', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Isla&backgroundColor=fde8d8' },
-      { key: 'f7', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Sage&backgroundColor=d1f0f0' },
-      { key: 'f8', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Aurora&backgroundColor=fce4ec' },
-      { key: 'f9', url: 'https://api.dicebear.com/7.x/personas/svg?seed=Sofia' },
-      { key: 'f10', url: 'https://api.dicebear.com/7.x/personas/svg?seed=Mia' },
-    ],
-    Male: [
-      { key: 'm1', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Felix&backgroundColor=dce8ff' },
-      { key: 'm2', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Liam&backgroundColor=d4f1e4' },
-      { key: 'm3', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Kai&backgroundColor=fff0cc' },
-      { key: 'm4', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Owen&backgroundColor=fde0d0' },
-      { key: 'm5', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Ryder&backgroundColor=e8e0f8' },
-      { key: 'm6', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Axel&backgroundColor=d0f0ff' },
-      { key: 'm7', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Zane&backgroundColor=e0ffe0' },
-      { key: 'm8', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Dante&backgroundColor=ffecd2' },
-      { key: 'm9', url: 'https://api.dicebear.com/7.x/personas/svg?seed=Noah' },
-      { key: 'm10', url: 'https://api.dicebear.com/7.x/personas/svg?seed=Ethan' },
-    ],
-    'Non-Binary': [
-      { key: 'nb1', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Riley&backgroundColor=f3e5f5' },
-      { key: 'nb2', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Avery&backgroundColor=e0f7fa' },
-      { key: 'nb3', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Quinn&backgroundColor=fff9c4' },
-      { key: 'nb4', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Sage&backgroundColor=fce4ec' },
-      { key: 'nb5', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=River&backgroundColor=e8f5e9' },
-      { key: 'nb6', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Skye&backgroundColor=e3f2fd' },
-      { key: 'nb7', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Nico&backgroundColor=fff3e0' },
-      { key: 'nb8', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Pax&backgroundColor=ede7f6' },
-      { key: 'nb9', url: 'https://api.dicebear.com/7.x/personas/svg?seed=Blake' },
-      { key: 'nb10', url: 'https://api.dicebear.com/7.x/personas/svg?seed=Jordan' },
-    ],
-  };
-
-  const currentPresets = AVATAR_PRESETS[gender] || AVATAR_PRESETS['Male'];
+  /* ─── Avatar Presets ─── */
+  const AVATAR_PRESETS = [
+    { key: 'avatar1', url: 'avatars/avatar1.jpeg' },
+    { key: 'avatar2', url: 'avatars/avatar2.jpeg' },
+    { key: 'avatar3', url: 'avatars/avatar3.jpeg' },
+    { key: 'avatar4', url: 'avatars/avatar4.jpeg' },
+  ];
 
   // Derive the displayed avatar URL
   const avatarUrl = (() => {
@@ -330,14 +295,12 @@ const SettingsView = () => {
     }
     if (profileAvatar) {
       // It's a preset key – find URL
-      const all = [...(AVATAR_PRESETS.Female || []), ...(AVATAR_PRESETS.Male || []), ...(AVATAR_PRESETS['Non-Binary'] || [])];
-      const found = all.find(a => a.key === profileAvatar);
+      const found = AVATAR_PRESETS.find(a => a.key === profileAvatar);
       if (found) return found.url;
     }
-    // Default: Google photo or generated avatar
+    // Default: Google photo or first preset avatar
     if (user?.photoURL) return user.photoURL;
-    const seed = gender === 'Female' ? 'Aria' : gender === 'Non-Binary' ? 'Riley' : 'Felix';
-    return `https://api.dicebear.com/7.x/adventurer/svg?seed=${displayName || 'User'}-${seed}`;
+    return AVATAR_PRESETS[0].url;
   })();
 
   const handleSelectAvatar = (key) => {
@@ -825,15 +788,9 @@ const SettingsView = () => {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-primary)" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
-
-            {/* Gender tab label */}
-            <p style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              {gender || 'All'} Avatars
-            </p>
-
             {/* Avatar Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px', marginBottom: '20px' }}>
-              {currentPresets.map(preset => (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '20px' }}>
+              {AVATAR_PRESETS.map(preset => (
                 <button
                   key={preset.key}
                   onClick={() => handleSelectAvatar(preset.key)}
@@ -841,13 +798,13 @@ const SettingsView = () => {
                     width: '100%',
                     aspectRatio: '1',
                     borderRadius: '16px',
-                    border: profileAvatar === preset.key ? '3px solid var(--accent-color)' : '2px solid var(--border-color)',
+                    border: profileAvatar === preset.key ? '3.5px solid var(--accent-color)' : '2.5px solid var(--border-color)',
                     background: 'var(--bg-main)',
                     cursor: 'pointer',
                     padding: 0,
                     overflow: 'hidden',
                     transition: 'all 0.15s ease',
-                    boxShadow: profileAvatar === preset.key ? '0 0 0 2px var(--accent-color)' : 'none',
+                    boxShadow: profileAvatar === preset.key ? '0 4px 12px rgba(0,0,0,0.15)' : 'none',
                   }}
                 >
                   <img
