@@ -171,7 +171,9 @@ const SettingsView = () => {
     themeColor,
     setThemeColor,
     isGuest,
-    setIsGuest
+    setIsGuest,
+    profileAvatar,
+    setProfileAvatar
   } = useContext(AppContext);
   
   const [tempName, setTempName] = useState(displayName);
@@ -206,10 +208,6 @@ const SettingsView = () => {
 
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
 
-  // Avatar: stored as data-URL (custom photo) or preset key
-  const [selectedAvatar, setSelectedAvatar] = useState(() =>
-    localStorage.getItem('profile_avatar') || ''
-  );
 
   const [apiKey, setApiKey] = useState('');
   const [authDomain, setAuthDomain] = useState('');
@@ -326,14 +324,14 @@ const SettingsView = () => {
 
   // Derive the displayed avatar URL
   const avatarUrl = (() => {
-    if (selectedAvatar && selectedAvatar.startsWith('data:')) {
+    if (profileAvatar && profileAvatar.startsWith('data:')) {
       // Custom uploaded photo
-      return selectedAvatar;
+      return profileAvatar;
     }
-    if (selectedAvatar) {
+    if (profileAvatar) {
       // It's a preset key – find URL
       const all = [...(AVATAR_PRESETS.Female || []), ...(AVATAR_PRESETS.Male || []), ...(AVATAR_PRESETS['Non-Binary'] || [])];
-      const found = all.find(a => a.key === selectedAvatar);
+      const found = all.find(a => a.key === profileAvatar);
       if (found) return found.url;
     }
     // Default: Google photo or generated avatar
@@ -343,8 +341,7 @@ const SettingsView = () => {
   })();
 
   const handleSelectAvatar = (key) => {
-    setSelectedAvatar(key);
-    localStorage.setItem('profile_avatar', key);
+    setProfileAvatar(key);
     setShowAvatarPicker(false);
   };
 
@@ -358,8 +355,7 @@ const SettingsView = () => {
     const reader = new FileReader();
     reader.onload = (ev) => {
       const dataUrl = ev.target.result;
-      setSelectedAvatar(dataUrl);
-      localStorage.setItem('profile_avatar', dataUrl);
+      setProfileAvatar(dataUrl);
       setShowAvatarPicker(false);
     };
     reader.readAsDataURL(file);
@@ -845,13 +841,13 @@ const SettingsView = () => {
                     width: '100%',
                     aspectRatio: '1',
                     borderRadius: '16px',
-                    border: selectedAvatar === preset.key ? '3px solid var(--accent-color)' : '2px solid var(--border-color)',
+                    border: profileAvatar === preset.key ? '3px solid var(--accent-color)' : '2px solid var(--border-color)',
                     background: 'var(--bg-main)',
                     cursor: 'pointer',
                     padding: 0,
                     overflow: 'hidden',
                     transition: 'all 0.15s ease',
-                    boxShadow: selectedAvatar === preset.key ? '0 0 0 2px var(--accent-color)' : 'none',
+                    boxShadow: profileAvatar === preset.key ? '0 0 0 2px var(--accent-color)' : 'none',
                   }}
                 >
                   <img
@@ -903,9 +899,9 @@ const SettingsView = () => {
             </label>
 
             {/* Remove custom photo if set */}
-            {selectedAvatar && (
+            {profileAvatar && (
               <button
-                onClick={() => { setSelectedAvatar(''); localStorage.removeItem('profile_avatar'); setShowAvatarPicker(false); }}
+                onClick={() => { setProfileAvatar(''); setShowAvatarPicker(false); }}
                 style={{ marginTop: 10, background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline', width: '100%' }}
               >
                 Reset to default avatar

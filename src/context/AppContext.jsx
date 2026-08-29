@@ -46,6 +46,10 @@ export const AppProvider = ({ children }) => {
     return localStorage.getItem('profile_theme') || 'default';
   });
 
+  const [profileAvatar, setProfileAvatar] = useState(() => {
+    return localStorage.getItem('profile_avatar') || '';
+  });
+
   const [habits, setHabits] = useState(() => {
     const local = localStorage.getItem('mindful_habits');
     return local ? JSON.parse(local) : DEFAULT_HABITS;
@@ -213,8 +217,9 @@ export const AppProvider = ({ children }) => {
     localStorage.setItem('profile_name', displayName);
     localStorage.setItem('profile_gender', gender);
     localStorage.setItem('profile_theme', themeColor);
+    localStorage.setItem('profile_avatar', profileAvatar);
     localStorage.setItem('profile_stats', JSON.stringify(userStats));
-  }, [displayName, gender, themeColor, userStats]);
+  }, [displayName, gender, themeColor, profileAvatar, userStats]);
 
   useEffect(() => {
     localStorage.setItem('mindful_logs', JSON.stringify(logs));
@@ -397,11 +402,13 @@ export const AppProvider = ({ children }) => {
     localStorage.removeItem('profile_theme');
     localStorage.removeItem('profile_stats');
     localStorage.removeItem('nutrition_logs');
+    localStorage.removeItem('profile_avatar');
     localStorage.removeItem('auth_mode');
     setLogs({});
     setHabits(DEFAULT_HABITS);
     setDisplayName('');
     setGender('');
+    setProfileAvatar('');
     setThemeColor('default');
     setUserStats({ weight: 70, height: 170, age: 25 });
     setNutritionLogs({});
@@ -435,6 +442,8 @@ export const AppProvider = ({ children }) => {
         setGender,
         themeColor,
         setThemeColor,
+        profileAvatar,
+        setProfileAvatar,
         habits,
         setHabits,
         userStats,
